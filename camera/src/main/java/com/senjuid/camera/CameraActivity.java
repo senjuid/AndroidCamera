@@ -64,7 +64,9 @@ public abstract class CameraActivity extends AppCompatActivity implements Surfac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
-        getSupportActionBar().hide();
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
