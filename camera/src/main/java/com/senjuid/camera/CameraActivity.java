@@ -86,7 +86,7 @@ public abstract class CameraActivity extends AppCompatActivity implements Surfac
                 folder = new File(Environment.getExternalStorageDirectory() + "/GreatDayHR");
                 if (!folder.exists()) {
                     folder.mkdirs();
-                    File file = new File(folder + ".nomedia");
+                    File file = new File(folder + "/.nomedia");
                     try {
                         file.createNewFile();
                     } catch (IOException e) {
