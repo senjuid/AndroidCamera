@@ -530,8 +530,9 @@ public abstract class CameraActivity extends AppCompatActivity implements Surfac
     // CHECK FOR MEMORY
     public int getFreeSpacePercantage() {
         int percantage = (int) (freeMemory() * 100 / totalMemory());
-        int modValue = percantage % 5;
-        return percantage - modValue;
+//        int modValue = percantage % 5;
+//        return percantage - modValue;
+        return percantage;
     }
 
     public double totalMemory() {
