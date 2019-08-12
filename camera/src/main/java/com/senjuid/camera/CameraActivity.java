@@ -42,11 +42,11 @@ import java.util.List;
 
 public abstract class CameraActivity extends AppCompatActivity implements SurfaceHolder.Callback, View.OnClickListener {
 
-    private String photo;
 
-    public CameraActivity(String name) {
-        super();
-        photo = name;
+    protected String photo;
+
+    public CameraActivity() {
+        photo = "img_default";
     }
 
     private RunTimePermission runTimePermission;
@@ -116,6 +116,8 @@ public abstract class CameraActivity extends AppCompatActivity implements Surfac
                 finish();
             }
         });
+
+        onSetNamePhoto();
     }
 
     @Override
@@ -686,5 +688,7 @@ public abstract class CameraActivity extends AppCompatActivity implements Surfac
     }
 
     public abstract void onYesButtonPressed(String photo);
+
+    public abstract void onSetNamePhoto();
 
 }
