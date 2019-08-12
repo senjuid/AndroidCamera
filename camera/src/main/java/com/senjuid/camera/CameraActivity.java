@@ -1,8 +1,6 @@
 package com.senjuid.camera;
 
 import android.Manifest;
-import android.app.ActionBar;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -13,13 +11,10 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.StatFs;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.OrientationEventListener;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -41,9 +36,18 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public abstract class CameraActivity extends AppCompatActivity implements SurfaceHolder.Callback, View.OnClickListener {
+
+    private String photo;
+
+    public CameraActivity(String name) {
+        super();
+        photo = name;
+    }
 
     private RunTimePermission runTimePermission;
     private File folder = null;
@@ -64,14 +68,15 @@ public abstract class CameraActivity extends AppCompatActivity implements Surfac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
-        if(getSupportActionBar() != null) {
+        if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         runTimePermission = new RunTimePermission(this);
-        runTimePermission.requestPermission(new String[]{Manifest.permission.CAMERA,
+        runTimePermission.requestPermission(new String[]{
+                Manifest.permission.CAMERA,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
         }, new RunTimePermission.RunTimePermissionListener() {
@@ -169,7 +174,7 @@ public abstract class CameraActivity extends AppCompatActivity implements Surfac
         button_save_picture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(tempFile != null) {
+                if (tempFile != null) {
                     onYesButtonPressed(tempFile.toString());
                 }
                 finish();
@@ -180,7 +185,7 @@ public abstract class CameraActivity extends AppCompatActivity implements Surfac
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(tempFile != null) {
+                if (tempFile != null) {
                     tempFile.delete();
                 }
                 activeCameraCapture();
@@ -189,7 +194,7 @@ public abstract class CameraActivity extends AppCompatActivity implements Surfac
         });
     }
 
-    int flashType = 1;
+    int flashType = 3;
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
@@ -508,10 +513,22 @@ public abstract class CameraActivity extends AppCompatActivity implements Surfac
     }
 
     private String getSavePhotoLocal(Bitmap bitmap) {
+        Date date = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int year = calendar.get(Calendar.YEAR);
+        String month;
+        if ((calendar.get(Calendar.MONTH) + 1) < 10) {
+            month = "0" + (calendar.get(Calendar.MONTH) + 1);
+        } else {
+            month = "" + (calendar.get(Calendar.MONTH) + 1);
+        }
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
         String path = "";
         try {
             OutputStream output;
-            File file = new File(folder.getAbsolutePath(), "greatday" + System.currentTimeMillis() + ".jpg");
+            File file = new File(folder.getAbsolutePath(), photo + "_" + year + "" + month + "" + day + "_" + System.currentTimeMillis() + ".jpg");
             try {
                 output = new FileOutputStream(file);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, output);
