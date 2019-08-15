@@ -539,7 +539,7 @@ public abstract class CameraActivity extends AppCompatActivity implements Surfac
             File file = new File(folder.getAbsolutePath(), photo + "_" + year + "" + month + "" + day + "_" + System.currentTimeMillis() + ".jpg");
             try {
                 output = new FileOutputStream(file);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, output);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 75, output);
                 output.flush();
                 output.close();
                 path = file.getAbsolutePath();
