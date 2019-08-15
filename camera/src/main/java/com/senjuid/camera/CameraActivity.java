@@ -107,6 +107,8 @@ public abstract class CameraActivity extends AppCompatActivity implements Surfac
                     if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
                         imgFlashOnOff.setVisibility(View.GONE);
                     }
+                } else {
+                    surfaceCreated(surfaceHolder);
                 }
 
             }
