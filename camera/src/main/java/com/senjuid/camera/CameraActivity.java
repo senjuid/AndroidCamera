@@ -326,8 +326,12 @@ public abstract class CameraActivity extends AppCompatActivity implements Surfac
     }
 
     private void captureImage() {
-        camera.takePicture(null, null, jpegCallback);
-        inActiveCameraCapture();
+        try {
+            camera.takePicture(null, null, jpegCallback);
+            inActiveCameraCapture();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void captureImageCallback() {
