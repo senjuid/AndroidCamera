@@ -181,7 +181,6 @@ public abstract class CameraActivity extends AppCompatActivity implements Surfac
                 if (tempFile != null) {
                     onYesButtonPressed(tempFile.toString());
                 }
-                finish();
             }
         });
         imgShow.setVisibility(View.VISIBLE);
