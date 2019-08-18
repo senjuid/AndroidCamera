@@ -1,6 +1,8 @@
 package com.senjuid.camera;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -40,7 +42,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public abstract class CameraActivity extends AppCompatActivity implements SurfaceHolder.Callback, View.OnClickListener {
+public class CameraActivity extends AppCompatActivity implements SurfaceHolder.Callback, View.OnClickListener {
 
 
     protected String photo;
@@ -119,7 +121,10 @@ public abstract class CameraActivity extends AppCompatActivity implements Surfac
             }
         });
 
-        onSetNamePhoto();
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            photo = extras.getString("name");
+        }
     }
 
     @Override
@@ -179,8 +184,11 @@ public abstract class CameraActivity extends AppCompatActivity implements Surfac
             @Override
             public void onClick(View v) {
                 if (tempFile != null) {
-                    onYesButtonPressed(tempFile.toString());
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra("photo", tempFile.toString());
+                    setResult(Activity.RESULT_OK, returnIntent);
                 }
+                finish();
             }
         });
         imgShow.setVisibility(View.VISIBLE);
@@ -691,9 +699,5 @@ public abstract class CameraActivity extends AppCompatActivity implements Surfac
         }
         camera.setDisplayOrientation(result);
     }
-
-    public abstract void onYesButtonPressed(String photo);
-
-    public abstract void onSetNamePhoto();
 
 }
