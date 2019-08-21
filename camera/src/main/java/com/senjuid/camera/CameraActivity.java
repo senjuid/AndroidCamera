@@ -178,6 +178,7 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
     private void showImageComponent() {
         imgSurface.setVisibility(View.GONE);
         imgCapture.setVisibility(View.GONE);
+        imgCapture.setEnabled(true);
         hintTextView.setVisibility(View.GONE);
         button_save_picture.setVisibility(View.VISIBLE);
         button_save_picture.setOnClickListener(new View.OnClickListener() {
@@ -310,6 +311,7 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
             imgCapture.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    imgCapture.setEnabled(false);
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -322,6 +324,7 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
                                         captureImage();
                                     } else {
                                         Toast.makeText(CameraActivity.this, "Memory is not available", Toast.LENGTH_SHORT).show();
+                                        imgCapture.setEnabled(true);
                                     }
                                 }
                             }, 100);
@@ -543,10 +546,10 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
         String path = "";
         try {
             OutputStream output;
-            File file = new File(folder.getAbsolutePath(), photo + "_" + year + "" + month + "" + day + "_" + System.currentTimeMillis() + ".jpg");
+            File file = new File(folder.getAbsolutePath(), photo + "_" + year + "" + month + "" + day + "_" + System.currentTimeMillis() + ".png");
             try {
                 output = new FileOutputStream(file);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 75, output);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 75, output);
                 output.flush();
                 output.close();
                 path = file.getAbsolutePath();
