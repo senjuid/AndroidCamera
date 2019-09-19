@@ -7,6 +7,7 @@ import android.os.Environment
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import com.otaliastudios.cameraview.CameraListener
 import com.otaliastudios.cameraview.CameraUtils
 import kotlinx.android.synthetic.main.activity_capture.*
@@ -16,10 +17,14 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
 
+/**
+ * Created by Hendi, 19 Sep 2019
+ * */
 class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermissionListener {
 
     private var runTimePermission: RunTimePermission? = null
     private var folder: File? = null
+    private var imageFileTemp: File? = null
 
     // MARK: Lifecycle
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,30 +34,34 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
 
         // Add camera listener
         camera_view.addCameraListener(object : CameraListener() {
-            override fun onPictureTaken(jpeg: ByteArray?) {
-                val prefix = intent.getStringExtra("name")
-                val fileName = createFileName(prefix)
-                CameraUtils.decodeBitmap(jpeg,720,1024) {
-                    val photo = File(folder, fileName)
-                    val fileOutputStream = FileOutputStream(photo)
-                    it.compress(Bitmap.CompressFormat.JPEG, 70, fileOutputStream)
-                    finish()
-
-                    // Or do anything after image saved
-                }
+            override fun onPictureTaken(data: ByteArray?) {
+                saveImageByteArray(data)
             }
         })
 
         // Add take picture button listener
         btn_take_picture.setOnClickListener {
-            showProgressDialog()
+            showProgressDialog(true)
             camera_view.capturePicture()
         }
 
         // Add back button listener
         btn_back.setOnClickListener {
+            if(iv_preview.visibility == View.VISIBLE){
+                viewMode(true)
+            }else{
+                finish()
+            }
+        }
+
+        // Add select picture button listener
+        btn_select_picture.setOnClickListener{
+            Toast.makeText(this, imageFileTemp?.absolutePath, Toast.LENGTH_LONG).show()
             finish()
         }
+
+        // set view mode
+        viewMode(true)
 
         // prepare (grant permission and make directory)
         prepare()
@@ -73,12 +82,21 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         runTimePermission?.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-
+    //
     // MARK: Own methods
-    private fun showProgressDialog() {
-        layout_progress.visibility = View.VISIBLE
-        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    //
+    private fun showProgressDialog(show: Boolean) {
+        layout_progress.visibility = if (show) View.VISIBLE else View.GONE
+    }
+
+    private fun viewMode(isCapture: Boolean){
+        if(isCapture){
+            btn_select_picture.visibility = View.GONE
+            iv_preview.visibility = View.GONE
+        }else{
+            btn_select_picture.visibility = View.VISIBLE
+            iv_preview.visibility = View.VISIBLE
+        }
     }
 
     private fun prepare(){
@@ -108,8 +126,25 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         }
     }
 
+    private fun saveImageByteArray(data: ByteArray?){
+        // Save picture to sdcard
+        val prefix = intent.getStringExtra("name")
+        val fileName = createFileName(prefix)
+        CameraUtils.decodeBitmap(data,720,1024) {
+            imageFileTemp = File(folder, fileName)
+            val fileOutputStream = FileOutputStream(imageFileTemp)
+            it.compress(Bitmap.CompressFormat.JPEG, 70, fileOutputStream)
 
+            // show preview image
+            showProgressDialog(false)
+            iv_preview.setImageBitmap(it)
+            viewMode(false)
+        }
+    }
+
+    //
     // MARK: RunTimePermission.RunTimePermissionListener
+    //
     override fun permissionGranted() {
         // Create directory
         val dirPath = "${Environment.getExternalStorageDirectory().path}/GreatDayHR"
