@@ -43,10 +43,15 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
             }
         })
 
-        // Add button listener
+        // Add take picture button listener
         btn_take_picture.setOnClickListener {
             showProgressDialog()
             camera_view.capturePicture()
+        }
+
+        // Add back button listener
+        btn_back.setOnClickListener {
+            finish()
         }
 
         // prepare (grant permission and make directory)
@@ -75,6 +80,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
+
     private fun prepare(){
         runTimePermission = RunTimePermission(this)
         runTimePermission?.requestPermission(
