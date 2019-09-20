@@ -1,6 +1,8 @@
 package com.senjuid.camera
 
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Environment
@@ -25,6 +27,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
     private var runTimePermission: RunTimePermission? = null
     private var folder: File? = null
     private var imageFileTemp: File? = null
+    private var photo: String = "img_default"
 
     // MARK: Lifecycle
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +59,10 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
 
         // Add select picture button listener
         btn_select_picture.setOnClickListener{
-            Toast.makeText(this, imageFileTemp?.absolutePath, Toast.LENGTH_LONG).show()
+//            Toast.makeText(this, imageFileTemp?.absolutePath, Toast.LENGTH_LONG).show()
+            val returnIntent = Intent()
+            returnIntent.putExtra("photo", imageFileTemp?.absolutePath)
+            setResult(Activity.RESULT_OK, returnIntent)
             finish()
         }
 
@@ -65,6 +71,10 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
 
         // prepare (grant permission and make directory)
         prepare()
+
+        // Get params
+        val bundle: Bundle? = intent.extras
+        photo = bundle?.getString("name")!!
     }
 
     override fun onResume() {
@@ -120,7 +130,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         val day = calendar.get(Calendar.DAY_OF_MONTH)
 
         return if (prefixName?.isEmpty() ==  true) {
-            "img_default_$year$month$day${"_"}${System.currentTimeMillis()}.png"
+            "$photo${"_"}$year$month$day${"_"}${System.currentTimeMillis()}.png"
         }else {
             "$prefixName${"_"}$year$month$day${"_"}${System.currentTimeMillis()}.png"
         }
