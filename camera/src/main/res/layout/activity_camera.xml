@@ -46,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 android:layout_marginTop="10dp"
-                android:src="@drawable/ic_arrow_back_black_24dp"
+                android:src="@drawable/ic_back_white"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 android:visibility="visible"/>
@@ -58,7 +58,7 @@
                 android:layout_marginBottom="20dp"
                 android:layout_marginRight="20dp"
                 android:background="@drawable/button_circle_camera_success"
-                android:src="@drawable/ic_check_black_24dp"
+                android:src="@drawable/ic_check"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toRightOf="parent" />
 
