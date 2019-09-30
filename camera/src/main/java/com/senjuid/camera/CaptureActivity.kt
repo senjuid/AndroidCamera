@@ -66,6 +66,10 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
             finish()
         }
 
+        btn_switch_camera.setOnClickListener{
+            camera_view.toggleFacing()
+        }
+
         // set view mode
         viewMode(true)
 

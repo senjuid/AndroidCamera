@@ -16,7 +16,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:cameraFacing="front"/>
 
-
+    <ImageButton
+        android:id="@+id/btn_switch_camera"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/button_circle_camera"
+        android:src="@drawable/ic_change_camera"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent" />
 
     <TextView
         android:id="@+id/hintTextView"
