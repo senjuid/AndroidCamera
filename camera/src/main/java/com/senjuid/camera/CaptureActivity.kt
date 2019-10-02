@@ -12,6 +12,8 @@ import android.view.WindowManager
 import android.widget.Toast
 import com.otaliastudios.cameraview.CameraListener
 import com.otaliastudios.cameraview.CameraUtils
+import com.otaliastudios.cameraview.CameraView
+import com.otaliastudios.cameraview.Facing
 import kotlinx.android.synthetic.main.activity_capture.*
 
 import java.io.File
@@ -66,9 +68,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
             finish()
         }
 
-        btn_switch_camera.setOnClickListener{
-            camera_view.toggleFacing()
-        }
+
 
         // set view mode
         viewMode(true)
@@ -79,6 +79,16 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         // Get params
         val bundle: Bundle? = intent.extras
         photo = bundle?.getString("name")!!
+
+        // check front disable front camera
+        if (bundle.getBoolean("disable_back", false)){
+            btn_switch_camera.visibility = View.GONE
+        }else{
+            btn_switch_camera.visibility = View.VISIBLE
+            btn_switch_camera.setOnClickListener{
+                camera_view.toggleFacing()
+            }
+        }
     }
 
     override fun onResume() {
