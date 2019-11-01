@@ -7,13 +7,12 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Environment
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
-import com.otaliastudios.cameraview.CameraListener
-import com.otaliastudios.cameraview.CameraUtils
-import com.otaliastudios.cameraview.CameraView
-import com.otaliastudios.cameraview.Facing
+import com.otaliastudios.cameraview.*
+import kotlinx.android.synthetic.main.activity_camera.view.*
 import kotlinx.android.synthetic.main.activity_capture.*
 
 import java.io.File
@@ -41,8 +40,10 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         camera_view.addCameraListener(object : CameraListener() {
             override fun onPictureTaken(data: ByteArray?) {
                 saveImageByteArray(data)
+
             }
         })
+        camera_view.cameraOptions
 
         // Add take picture button listener
         btn_take_picture.setOnClickListener {
@@ -52,22 +53,33 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
 
         // Add back button listener
         btn_back.setOnClickListener {
-            if(iv_preview.visibility == View.VISIBLE){
+            if (iv_preview.visibility == View.VISIBLE) {
                 viewMode(true)
-            }else{
+            } else {
                 finish()
             }
         }
 
         // Add select picture button listener
-        btn_select_picture.setOnClickListener{
-//            Toast.makeText(this, imageFileTemp?.absolutePath, Toast.LENGTH_LONG).show()
+        btn_select_picture.setOnClickListener {
+            //            Toast.makeText(this, imageFileTemp?.absolutePath, Toast.LENGTH_LONG).show()
             val returnIntent = Intent()
             returnIntent.putExtra("photo", imageFileTemp?.absolutePath)
             setResult(Activity.RESULT_OK, returnIntent)
             finish()
         }
 
+        btn_flash_on.setOnClickListener {
+            camera_view.flash = Flash.OFF
+            btn_flash_on.visibility = View.GONE;
+            btn_flash_off.visibility = View.VISIBLE
+        }
+
+        btn_flash_off.setOnClickListener {
+            camera_view.flash = Flash.ON
+            btn_flash_on.visibility = View.VISIBLE;
+            btn_flash_off.visibility = View.GONE
+        }
 
 
         // set view mode
@@ -81,16 +93,27 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         photo = bundle?.getString("name")!!
 
         // check front disable front camera
-        if (bundle.getBoolean("disable_back", false)){
+        if (bundle.getBoolean("disable_back", false)) {
             btn_switch_camera.visibility = View.GONE
-        }else{
+        } else {
             btn_switch_camera.visibility = View.VISIBLE
-            btn_switch_camera.setOnClickListener{
+            btn_switch_camera.setOnClickListener {
                 camera_view.toggleFacing()
+                if (camera_view.facing.toString() == "FRONT") {
+                    Log.d("facing camera", camera_view.facing.toString());
+                    camera_view.flash = Flash.OFF
+                    btn_flash_on.visibility = View.GONE
+                    btn_flash_off.visibility = View.GONE
+                } else {
+                    camera_view.flash = Flash.OFF
+                    btn_flash_on.visibility = View.GONE
+                    btn_flash_off.visibility = View.VISIBLE
+                }
             }
         }
     }
 
+    public
     override fun onResume() {
         super.onResume()
         camera_view.start()
@@ -113,17 +136,18 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         layout_progress.visibility = if (show) View.VISIBLE else View.GONE
     }
 
-    private fun viewMode(isCapture: Boolean){
-        if(isCapture){
+    private fun viewMode(isCapture: Boolean) {
+        if (isCapture) {
             btn_select_picture.visibility = View.GONE
             iv_preview.visibility = View.GONE
-        }else{
+        } else {
             btn_select_picture.visibility = View.VISIBLE
             iv_preview.visibility = View.VISIBLE
+
         }
     }
 
-    private fun prepare(){
+    private fun prepare() {
         runTimePermission = RunTimePermission(this)
         runTimePermission?.requestPermission(
                 arrayOf(
@@ -143,18 +167,18 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         }
         val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-        return if (prefixName?.isEmpty() ==  true) {
+        return if (prefixName?.isEmpty() == true) {
             "$photo${"_"}$year$month$day${"_"}${System.currentTimeMillis()}.png"
-        }else {
+        } else {
             "$prefixName${"_"}$year$month$day${"_"}${System.currentTimeMillis()}.png"
         }
     }
 
-    private fun saveImageByteArray(data: ByteArray?){
+    private fun saveImageByteArray(data: ByteArray?) {
         // Save picture to sdcard
         val prefix = intent.getStringExtra("name")
         val fileName = createFileName(prefix)
-        CameraUtils.decodeBitmap(data,720,1024) {
+        CameraUtils.decodeBitmap(data, 720, 1024) {
             imageFileTemp = File(folder, fileName)
             val fileOutputStream = FileOutputStream(imageFileTemp)
             it.compress(Bitmap.CompressFormat.JPEG, 70, fileOutputStream)
@@ -173,7 +197,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         // Create directory
         val dirPath = "${Environment.getExternalStorageDirectory().path}/GreatDayHR"
         folder = File(dirPath)
-        if(folder?.exists() == false){
+        if (folder?.exists() == false) {
             folder?.mkdirs()
 
             // Create .nomedia file
