@@ -117,6 +117,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
     override fun onResume() {
         super.onResume()
         camera_view.start()
+        camera_view.facing = Facing.BACK
     }
 
     override fun onPause() {

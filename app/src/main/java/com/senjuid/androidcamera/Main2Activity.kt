@@ -19,7 +19,7 @@ class Main2Activity : AppCompatActivity() {
         button_click.setOnClickListener {
             val intent = Intent(this, CaptureActivity::class.java)
             intent.putExtra("name","img_lite")
-            intent.putExtra("disable_back",false)
+            intent.putExtra("disable_back",true)
             startActivityForResult(intent, 1)
 
 //            val intent = Intent(this, MainActivity::class.java)
