@@ -6,15 +6,15 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Environment
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
-import android.widget.Toast
-import com.otaliastudios.cameraview.*
-import kotlinx.android.synthetic.main.activity_camera.view.*
+import androidx.appcompat.app.AppCompatActivity
+import com.otaliastudios.cameraview.CameraListener
+import com.otaliastudios.cameraview.PictureResult
+import com.otaliastudios.cameraview.controls.Facing
+import com.otaliastudios.cameraview.controls.Flash
 import kotlinx.android.synthetic.main.activity_capture.*
-
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -38,9 +38,9 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
 
         // Add camera listener
         camera_view.addCameraListener(object : CameraListener() {
-            override fun onPictureTaken(data: ByteArray?) {
-                saveImageByteArray(data)
-
+            override fun onPictureTaken(result: PictureResult) {
+                super.onPictureTaken(result)
+                savePictureResult(result)
             }
         })
         camera_view.cameraOptions
@@ -48,7 +48,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         // Add take picture button listener
         btn_take_picture.setOnClickListener {
             showProgressDialog(true)
-            camera_view.capturePicture()
+            camera_view.takePicture()
         }
 
         // Add back button listener
@@ -77,7 +77,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
 
         btn_flash_off.setOnClickListener {
             camera_view.flash = Flash.ON
-            btn_flash_on.visibility = View.VISIBLE;
+            btn_flash_on.visibility = View.VISIBLE
             btn_flash_off.visibility = View.GONE
         }
 
@@ -113,16 +113,44 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         }
     }
 
+    fun savePictureResult(result: PictureResult) {
+        var maxSize = intent.extras?.getInt("max_size")
+        var compress = intent.extras?.getInt("quality")
+        if (maxSize == null || maxSize == 0) {
+            maxSize = 1024
+        }
+        if (compress == null || compress == 0) {
+            compress = 100
+        }
+
+        result.toBitmap(maxSize!!, maxSize!!) {
+            it?.let {
+                // Save picture to sdcard
+                val prefix = intent.getStringExtra("name")
+                val fileName = createFileName(prefix)
+
+                imageFileTemp = File(folder, fileName)
+                val fileOutputStream = FileOutputStream(imageFileTemp)
+                it?.compress(Bitmap.CompressFormat.JPEG, compress!!, fileOutputStream)
+
+                iv_preview.setImageBitmap(it)
+                viewMode(false)
+            }
+
+            showProgressDialog(false)
+        }
+    }
+
     public
     override fun onResume() {
         super.onResume()
-        camera_view.start()
+        camera_view.open()
         camera_view.facing = Facing.BACK
     }
 
     override fun onPause() {
         super.onPause()
-        camera_view.stop()
+        camera_view.close()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -172,22 +200,6 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
             "$photo${"_"}$year$month$day${"_"}${System.currentTimeMillis()}.png"
         } else {
             "$prefixName${"_"}$year$month$day${"_"}${System.currentTimeMillis()}.png"
-        }
-    }
-
-    private fun saveImageByteArray(data: ByteArray?) {
-        // Save picture to sdcard
-        val prefix = intent.getStringExtra("name")
-        val fileName = createFileName(prefix)
-        CameraUtils.decodeBitmap(data, 720, 1024) {
-            imageFileTemp = File(folder, fileName)
-            val fileOutputStream = FileOutputStream(imageFileTemp)
-            it.compress(Bitmap.CompressFormat.JPEG, 70, fileOutputStream)
-
-            // show preview image
-            showProgressDialog(false)
-            iv_preview.setImageBitmap(it)
-            viewMode(false)
         }
     }
 
