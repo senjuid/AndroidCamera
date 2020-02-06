@@ -54,11 +54,12 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
 
         // Add back button listener
         btn_back.setOnClickListener {
-            if (iv_preview.visibility == View.VISIBLE) {
-                viewMode(true)
-            } else {
-                finish()
-            }
+            finish()
+        }
+
+        // Add back button listener
+        btn_retake.setOnClickListener {
+            viewMode(true)
         }
 
         // Add select picture button listener
@@ -184,10 +185,11 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         if (isCapture) {
             btn_select_picture.visibility = View.GONE
             iv_preview.visibility = View.GONE
+            btn_retake.visibility = View.GONE
         } else {
             btn_select_picture.visibility = View.VISIBLE
             iv_preview.visibility = View.VISIBLE
-
+            btn_retake.visibility = View.VISIBLE
         }
     }
 

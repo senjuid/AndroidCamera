@@ -57,6 +57,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:padding="5dp"
+        android:gravity="center_horizontal"
         android:text="Tap for photo"
         android:textColor="@android:color/white"
         android:textSize="14sp"
@@ -110,6 +111,18 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
+    <ImageButton
+        android:id="@+id/btn_retake"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="20dp"
+        android:background="@android:color/transparent"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_camera1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent" />
 
     <RelativeLayout
         android:id="@+id/layout_progress"
