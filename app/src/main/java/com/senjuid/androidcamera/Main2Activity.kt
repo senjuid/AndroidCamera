@@ -22,7 +22,7 @@ class Main2Activity : AppCompatActivity() {
             val quality = et_quality.text.toString().toIntOrNull()
 
             intent.putExtra("name", "img_lite")
-            intent.putExtra("disable_back", true)
+            intent.putExtra("disable_back", false)
             intent.putExtra("disable_mirror", true)
             intent.putExtra("max_size", maxSize)
             intent.putExtra("quality", quality)
