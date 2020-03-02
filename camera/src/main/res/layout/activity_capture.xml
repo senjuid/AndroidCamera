@@ -58,7 +58,7 @@
         android:layout_centerHorizontal="true"
         android:padding="5dp"
         android:gravity="center_horizontal"
-        android:text="Tap for photo"
+        android:text="Tap to take picture"
         android:textColor="@android:color/white"
         android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@id/btn_take_picture"
