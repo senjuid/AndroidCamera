@@ -138,38 +138,59 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
     //
     private fun savePictureResult(result: PictureResult) {
         var maxSize = intent.extras?.getInt("max_size")
-        var compress = intent.extras?.getInt("quality")
         if (maxSize == null || maxSize == 0) {
-            maxSize = 1024
-        }
-        if (compress == null || compress == 0) {
-            compress = 100
-        }
 
-        result.toBitmap(maxSize!!, maxSize!!) {
-            it?.let {
-                // mirroring option
-                var disableMirror = intent.extras?.getBoolean("disable_mirror", true)
-                val bmp = if (camera_view.facing == Facing.FRONT && disableMirror!!) {
-                    it.flip(-1f, 1f, it.width / 2f, it.height / 2f)
-                } else {
-                    it
+            // Picture doesn't resized
+            result.toBitmap {
+                it?.let {
+                    val bmpSaved = savePictureResultBitmap(it)
+                    if (bmpSaved != null) {
+                        iv_preview.setImageBitmap(bmpSaved)
+                        viewMode(false)
+                    }
                 }
 
-                // Save picture to sdcard
-                val prefix = intent.getStringExtra("name")
-                val fileName = createFileName(prefix)
-
-                imageFileTemp = File(folder, fileName)
-                val fileOutputStream = FileOutputStream(imageFileTemp)
-                bmp.compress(Bitmap.CompressFormat.JPEG, compress!!, fileOutputStream)
-
-                iv_preview.setImageBitmap(bmp)
-                viewMode(false)
+                // Dismiss progress
+                showProgressDialog(false)
             }
+        } else {
 
-            showProgressDialog(false)
+            // Picture resized
+            result.toBitmap(maxSize!!, maxSize!!) {
+                it?.let {
+                    val bmpSaved = savePictureResultBitmap(it)
+                    if (bmpSaved != null) {
+                        iv_preview.setImageBitmap(bmpSaved)
+                        viewMode(false)
+                    }
+                }
+
+                // Dismiss progress
+                showProgressDialog(false)
+            }
         }
+    }
+
+    private fun savePictureResultBitmap(it: Bitmap): Bitmap? {
+        // Extras
+        var disableMirror = intent.extras?.getBoolean("disable_mirror", true)
+        var compress = intent.extras?.getInt("quality")
+
+        // Mirroring option
+        val bmp = if (camera_view.facing == Facing.FRONT && disableMirror!!) {
+            it.flip(-1f, 1f, it.width / 2f, it.height / 2f)
+        } else {
+            it
+        }
+
+        // Save picture to sdcard
+        val prefix = intent.getStringExtra("name")
+        val fileName = createFileName(prefix)
+        imageFileTemp = File(folder, fileName)
+        val fileOutputStream = FileOutputStream(imageFileTemp)
+        bmp.compress(Bitmap.CompressFormat.JPEG, compress!!, fileOutputStream)
+
+        return bmp
     }
 
     private fun Bitmap.flip(x: Float, y: Float, cx: Float, cy: Float): Bitmap {
