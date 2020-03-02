@@ -174,7 +174,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
     private fun savePictureResultBitmap(it: Bitmap): Bitmap? {
         // Extras
         var disableMirror = intent.extras?.getBoolean("disable_mirror", true)
-        var compress = intent.extras?.getInt("quality")
+        var compress = intent.extras?.getInt("quality", 100)
 
         // Mirroring option
         val bmp = if (camera_view.facing == Facing.FRONT && disableMirror!!) {
