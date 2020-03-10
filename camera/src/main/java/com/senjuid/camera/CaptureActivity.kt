@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Environment
 import android.util.Log
 import android.view.View
@@ -30,6 +31,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
     private var folder: File? = null
     private var imageFileTemp: File? = null
     private var photo: String = "img_default"
+    private var countDownTimer: CountDownTimer? = null
 
     // MARK: Lifecycle
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,8 +115,20 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
                 }
             }
         }
-    }
 
+        // init countdown timer
+        countDownTimer?.cancel()
+        val timerTime: Long = 10 * 1000 * 60 //10 minutes
+        countDownTimer = object : CountDownTimer(timerTime, 1000) {
+            override fun onFinish() {
+                this@CaptureActivity.finish()
+            }
+
+            override fun onTick(millisUntilFinished: Long) {
+            }
+        }
+        countDownTimer?.start()
+    }
 
     public
     override fun onResume() {
@@ -126,6 +140,11 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
     override fun onPause() {
         super.onPause()
         camera_view.close()
+    }
+
+    override fun onStop() {
+        countDownTimer?.cancel()
+        super.onStop()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
