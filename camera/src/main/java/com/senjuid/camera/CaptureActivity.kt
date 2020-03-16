@@ -8,9 +8,9 @@ import android.graphics.Matrix
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Environment
+import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.view.WindowManager
-import androidx.appcompat.app.AppCompatActivity
 import com.otaliastudios.cameraview.CameraListener
 import com.otaliastudios.cameraview.CameraUtils
 import com.otaliastudios.cameraview.Facing
