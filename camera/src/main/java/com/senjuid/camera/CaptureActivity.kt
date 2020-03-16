@@ -8,14 +8,13 @@ import android.graphics.Matrix
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Environment
-import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.otaliastudios.cameraview.CameraListener
-import com.otaliastudios.cameraview.PictureResult
-import com.otaliastudios.cameraview.controls.Facing
-import com.otaliastudios.cameraview.controls.Flash
+import com.otaliastudios.cameraview.CameraUtils
+import com.otaliastudios.cameraview.Facing
+import com.otaliastudios.cameraview.Flash
 import kotlinx.android.synthetic.main.activity_capture.*
 import java.io.File
 import java.io.FileOutputStream
@@ -51,7 +50,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         // Add take picture button listener
         btn_take_picture.setOnClickListener {
             showProgressDialog(true)
-            camera_view.takePicture()
+            camera_view.capturePicture()
         }
 
         // Add back button listener
@@ -142,12 +141,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
 
     override fun onPause() {
         super.onPause()
-        camera_view.close()
-    }
-
-    override fun onStop() {
-        countDownTimer?.cancel()
-        super.onStop()
+        camera_view.stop()
     }
 
     override fun onStop() {
