@@ -41,9 +41,9 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
 
         // Add camera listener
         camera_view.addCameraListener(object : CameraListener() {
-            override fun onPictureTaken(result: PictureResult) {
-                super.onPictureTaken(result)
-                savePictureResult(result)
+            override fun onPictureTaken(data: ByteArray?) {
+//                saveImageByteArray(data)
+                savePictureResult(data)
             }
         })
         camera_view.cameraOptions
@@ -57,6 +57,11 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         // Add back button listener
         btn_back.setOnClickListener {
             finish()
+        }
+
+        // Add back button listener
+        btn_retake.setOnClickListener {
+            viewMode(true)
         }
 
         // Add back button listener
@@ -103,8 +108,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
             btn_switch_camera.visibility = View.VISIBLE
             btn_switch_camera.setOnClickListener {
                 camera_view.toggleFacing()
-                if (camera_view.facing.toString() == "FRONT") {
-                    Log.d("facing camera", camera_view.facing.toString());
+                if (camera_view.facing == Facing.FRONT) {
                     camera_view.flash = Flash.OFF
                     btn_flash_on.visibility = View.GONE
                     btn_flash_off.visibility = View.GONE
@@ -133,13 +137,17 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
     public
     override fun onResume() {
         super.onResume()
-        camera_view.open()
-        camera_view.facing = Facing.BACK
+        camera_view.start()
     }
 
     override fun onPause() {
         super.onPause()
         camera_view.close()
+    }
+
+    override fun onStop() {
+        countDownTimer?.cancel()
+        super.onStop()
     }
 
     override fun onStop() {
@@ -155,12 +163,12 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
     //
     // MARK: Own methods
     //
-    private fun savePictureResult(result: PictureResult) {
+    private fun savePictureResult(data: ByteArray?) {
         var maxSize = intent.extras?.getInt("max_size")
         if (maxSize == null || maxSize == 0) {
 
             // Picture doesn't resized
-            result.toBitmap {
+            CameraUtils.decodeBitmap(data) {
                 it?.let {
                     val bmpSaved = savePictureResultBitmap(it)
                     if (bmpSaved != null) {
@@ -175,7 +183,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         } else {
 
             // Picture resized
-            result.toBitmap(maxSize!!, maxSize!!) {
+            CameraUtils.decodeBitmap(data, maxSize!!, maxSize!!) {
                 it?.let {
                     val bmpSaved = savePictureResultBitmap(it)
                     if (bmpSaved != null) {
@@ -259,6 +267,22 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
             "$prefixName${"_"}$year$month$day${"_"}${System.currentTimeMillis()}.png"
         }
     }
+
+//    private fun saveImageByteArray(data: ByteArray?) {
+//        // Save picture to sdcard
+//        val prefix = intent.getStringExtra("name")
+//        val fileName = createFileName(prefix)
+//        CameraUtils.decodeBitmap(data, 720, 1024) {
+//            imageFileTemp = File(folder, fileName)
+//            val fileOutputStream = FileOutputStream(imageFileTemp)
+//            it.compress(Bitmap.CompressFormat.JPEG, 70, fileOutputStream)
+//
+//            // show preview image
+//            showProgressDialog(false)
+//            iv_preview.setImageBitmap(it)
+//            viewMode(false)
+//        }
+//    }
 
     //
     // MARK: RunTimePermission.RunTimePermissionListener
