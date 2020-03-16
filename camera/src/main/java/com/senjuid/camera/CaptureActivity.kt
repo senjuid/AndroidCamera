@@ -4,7 +4,9 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Environment
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -29,6 +31,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
     private var folder: File? = null
     private var imageFileTemp: File? = null
     private var photo: String = "img_default"
+    private var countDownTimer: CountDownTimer? = null
 
     // MARK: Lifecycle
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,8 +42,8 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         // Add camera listener
         camera_view.addCameraListener(object : CameraListener() {
             override fun onPictureTaken(data: ByteArray?) {
-                saveImageByteArray(data)
-
+//                saveImageByteArray(data)
+                savePictureResult(data)
             }
         })
         camera_view.cameraOptions
@@ -60,6 +63,11 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
             }
         }
 
+        // Add back button listener
+        btn_retake.setOnClickListener {
+            viewMode(true)
+        }
+
         // Add select picture button listener
         btn_select_picture.setOnClickListener {
             //            Toast.makeText(this, imageFileTemp?.absolutePath, Toast.LENGTH_LONG).show()
@@ -77,7 +85,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
 
         btn_flash_off.setOnClickListener {
             camera_view.flash = Flash.ON
-            btn_flash_on.visibility = View.VISIBLE;
+            btn_flash_on.visibility = View.VISIBLE
             btn_flash_off.visibility = View.GONE
         }
 
@@ -99,8 +107,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
             btn_switch_camera.visibility = View.VISIBLE
             btn_switch_camera.setOnClickListener {
                 camera_view.toggleFacing()
-                if (camera_view.facing.toString() == "FRONT") {
-                    Log.d("facing camera", camera_view.facing.toString());
+                if (camera_view.facing == Facing.FRONT) {
                     camera_view.flash = Flash.OFF
                     btn_flash_on.visibility = View.GONE
                     btn_flash_off.visibility = View.GONE
@@ -111,18 +118,35 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
                 }
             }
         }
+
+        // init countdown timer
+        countDownTimer?.cancel()
+        val timerTime: Long = 10 * 1000 * 60 //10 minutes
+        countDownTimer = object : CountDownTimer(timerTime, 1000) {
+            override fun onFinish() {
+                this@CaptureActivity.finish()
+            }
+
+            override fun onTick(millisUntilFinished: Long) {
+            }
+        }
+        countDownTimer?.start()
     }
 
     public
     override fun onResume() {
         super.onResume()
         camera_view.start()
-        camera_view.facing = Facing.BACK
     }
 
     override fun onPause() {
         super.onPause()
         camera_view.stop()
+    }
+
+    override fun onStop() {
+        countDownTimer?.cancel()
+        super.onStop()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -133,6 +157,68 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
     //
     // MARK: Own methods
     //
+    private fun savePictureResult(data: ByteArray?) {
+        var maxSize = intent.extras?.getInt("max_size")
+        if (maxSize == null || maxSize == 0) {
+
+            // Picture doesn't resized
+            CameraUtils.decodeBitmap(data) {
+                it?.let {
+                    val bmpSaved = savePictureResultBitmap(it)
+                    if (bmpSaved != null) {
+                        iv_preview.setImageBitmap(bmpSaved)
+                        viewMode(false)
+                    }
+                }
+
+                // Dismiss progress
+                showProgressDialog(false)
+            }
+        } else {
+
+            // Picture resized
+            CameraUtils.decodeBitmap(data, maxSize!!, maxSize!!) {
+                it?.let {
+                    val bmpSaved = savePictureResultBitmap(it)
+                    if (bmpSaved != null) {
+                        iv_preview.setImageBitmap(bmpSaved)
+                        viewMode(false)
+                    }
+                }
+
+                // Dismiss progress
+                showProgressDialog(false)
+            }
+        }
+    }
+
+    private fun savePictureResultBitmap(it: Bitmap): Bitmap? {
+        // Extras
+        var disableMirror = intent.extras?.getBoolean("disable_mirror", true)
+        var compress = intent.extras?.getInt("quality", 100)
+
+        // Mirroring option
+        val bmp = if (camera_view.facing == Facing.FRONT && disableMirror!!) {
+            it.flip(-1f, 1f, it.width / 2f, it.height / 2f)
+        } else {
+            it
+        }
+
+        // Save picture to sdcard
+        val prefix = intent.getStringExtra("name")
+        val fileName = createFileName(prefix)
+        imageFileTemp = File(folder, fileName)
+        val fileOutputStream = FileOutputStream(imageFileTemp)
+        bmp.compress(Bitmap.CompressFormat.JPEG, compress!!, fileOutputStream)
+
+        return bmp
+    }
+
+    private fun Bitmap.flip(x: Float, y: Float, cx: Float, cy: Float): Bitmap {
+        val matrix = Matrix().apply { postScale(x, y, cx, cy) }
+        return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
+    }
+
     private fun showProgressDialog(show: Boolean) {
         layout_progress.visibility = if (show) View.VISIBLE else View.GONE
     }
@@ -141,10 +227,11 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         if (isCapture) {
             btn_select_picture.visibility = View.GONE
             iv_preview.visibility = View.GONE
+            btn_retake.visibility = View.GONE
         } else {
             btn_select_picture.visibility = View.VISIBLE
             iv_preview.visibility = View.VISIBLE
-
+            btn_retake.visibility = View.VISIBLE
         }
     }
 
@@ -175,21 +262,21 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         }
     }
 
-    private fun saveImageByteArray(data: ByteArray?) {
-        // Save picture to sdcard
-        val prefix = intent.getStringExtra("name")
-        val fileName = createFileName(prefix)
-        CameraUtils.decodeBitmap(data, 720, 1024) {
-            imageFileTemp = File(folder, fileName)
-            val fileOutputStream = FileOutputStream(imageFileTemp)
-            it.compress(Bitmap.CompressFormat.JPEG, 70, fileOutputStream)
-
-            // show preview image
-            showProgressDialog(false)
-            iv_preview.setImageBitmap(it)
-            viewMode(false)
-        }
-    }
+//    private fun saveImageByteArray(data: ByteArray?) {
+//        // Save picture to sdcard
+//        val prefix = intent.getStringExtra("name")
+//        val fileName = createFileName(prefix)
+//        CameraUtils.decodeBitmap(data, 720, 1024) {
+//            imageFileTemp = File(folder, fileName)
+//            val fileOutputStream = FileOutputStream(imageFileTemp)
+//            it.compress(Bitmap.CompressFormat.JPEG, 70, fileOutputStream)
+//
+//            // show preview image
+//            showProgressDialog(false)
+//            iv_preview.setImageBitmap(it)
+//            viewMode(false)
+//        }
+//    }
 
     //
     // MARK: RunTimePermission.RunTimePermissionListener
