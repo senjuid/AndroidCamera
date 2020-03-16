@@ -9,14 +9,13 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Environment
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.View
 import android.view.WindowManager
-import android.widget.Toast
-import com.otaliastudios.cameraview.*
-import kotlinx.android.synthetic.main.activity_camera.view.*
+import com.otaliastudios.cameraview.CameraListener
+import com.otaliastudios.cameraview.CameraUtils
+import com.otaliastudios.cameraview.Facing
+import com.otaliastudios.cameraview.Flash
 import kotlinx.android.synthetic.main.activity_capture.*
-
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
