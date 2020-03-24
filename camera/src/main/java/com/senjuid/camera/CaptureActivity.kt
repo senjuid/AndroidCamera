@@ -8,13 +8,13 @@ import android.graphics.Matrix
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Environment
-import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
 import com.otaliastudios.cameraview.CameraListener
-import com.otaliastudios.cameraview.CameraUtils
-import com.otaliastudios.cameraview.Facing
-import com.otaliastudios.cameraview.Flash
+import com.otaliastudios.cameraview.PictureResult
+import com.otaliastudios.cameraview.controls.Facing
+import com.otaliastudios.cameraview.controls.Flash
 import kotlinx.android.synthetic.main.activity_capture.*
 import java.io.File
 import java.io.FileOutputStream
@@ -40,9 +40,8 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
 
         // Add camera listener
         camera_view.addCameraListener(object : CameraListener() {
-            override fun onPictureTaken(data: ByteArray?) {
-//                saveImageByteArray(data)
-                savePictureResult(data)
+            override fun onPictureTaken(result: PictureResult) {
+                savePictureResult(result)
             }
         })
         camera_view.cameraOptions
@@ -50,7 +49,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         // Add take picture button listener
         btn_take_picture.setOnClickListener {
             showProgressDialog(true)
-            camera_view.capturePicture()
+            camera_view.takePicture()
         }
 
         // Add back button listener
@@ -136,12 +135,12 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
     public
     override fun onResume() {
         super.onResume()
-        camera_view.start()
+        camera_view.open()
     }
 
     override fun onPause() {
         super.onPause()
-        camera_view.stop()
+        camera_view.close()
     }
 
     override fun onStop() {
@@ -157,12 +156,12 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
     //
     // MARK: Own methods
     //
-    private fun savePictureResult(data: ByteArray?) {
+    private fun savePictureResult(data: PictureResult?) {
         var maxSize = intent.extras?.getInt("max_size")
         if (maxSize == null || maxSize == 0) {
 
             // Picture doesn't resized
-            CameraUtils.decodeBitmap(data) {
+            data?.toBitmap {
                 it?.let {
                     val bmpSaved = savePictureResultBitmap(it)
                     if (bmpSaved != null) {
@@ -177,7 +176,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         } else {
 
             // Picture resized
-            CameraUtils.decodeBitmap(data, maxSize!!, maxSize!!) {
+            data?.toBitmap(maxSize!!, maxSize!!) {
                 it?.let {
                     val bmpSaved = savePictureResultBitmap(it)
                     if (bmpSaved != null) {
