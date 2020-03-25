@@ -4,7 +4,7 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'com.github.dcendents.android-maven'
 
-group='com.github.senjuid'
+group = 'com.github.senjuid'
 
 android {
     compileSdkVersion 28
@@ -46,6 +46,10 @@ dependencies {
     implementation 'com.otaliastudios:cameraview:2.6.2'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.exifinterface:exifinterface:1.1.0'
+
+    // Activity Extension
+    implementation "androidx.activity:activity:1.2.0-alpha02"
+    implementation "androidx.activity:activity-ktx:1.2.0-alpha02"
 }
 repositories {
     mavenCentral()

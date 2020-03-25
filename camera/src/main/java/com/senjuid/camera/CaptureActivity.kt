@@ -261,22 +261,6 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         }
     }
 
-//    private fun saveImageByteArray(data: ByteArray?) {
-//        // Save picture to sdcard
-//        val prefix = intent.getStringExtra("name")
-//        val fileName = createFileName(prefix)
-//        CameraUtils.decodeBitmap(data, 720, 1024) {
-//            imageFileTemp = File(folder, fileName)
-//            val fileOutputStream = FileOutputStream(imageFileTemp)
-//            it.compress(Bitmap.CompressFormat.JPEG, 70, fileOutputStream)
-//
-//            // show preview image
-//            showProgressDialog(false)
-//            iv_preview.setImageBitmap(it)
-//            viewMode(false)
-//        }
-//    }
-
     //
     // MARK: RunTimePermission.RunTimePermissionListener
     //
