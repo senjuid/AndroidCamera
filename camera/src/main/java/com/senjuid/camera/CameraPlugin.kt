@@ -10,7 +10,7 @@ import androidx.lifecycle.LifecycleObserver
 
 class CameraPlugin(private val activity: AppCompatActivity) : LifecycleObserver {
 
-    private var listener: ((String) -> Unit)? = null
+    private var listener: CameraPluginListener? = null
 
     private val startForResult =
             activity.prepareCall(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
@@ -18,13 +18,17 @@ class CameraPlugin(private val activity: AppCompatActivity) : LifecycleObserver 
                     listener?.let {
                         val photoPath = result.data?.getStringExtra("photo")
                         if (photoPath != null) {
-                            it(photoPath)
+                            it.onSuccess(photoPath)
+                        } else {
+                            it.onCancel()
                         }
                     }
+                } else {
+                    listener?.onCancel()
                 }
             }
 
-    fun setCameraPluginListener(listener: ((String) -> Unit)?) {
+    fun setCameraPluginListener(listener: CameraPluginListener?) {
         this.listener = listener
     }
 
@@ -37,6 +41,11 @@ class CameraPlugin(private val activity: AppCompatActivity) : LifecycleObserver 
         intent.putExtra("quality", options.quality)
         startForResult(intent)
     }
+}
+
+interface CameraPluginListener {
+    fun onSuccess(photoPath: String)
+    fun onCancel()
 }
 
 class CameraPluginOptions private constructor(
