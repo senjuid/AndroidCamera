@@ -31,12 +31,15 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
     private var imageFileTemp: File? = null
     private var photo: String = "img_default"
     private var countDownTimer: CountDownTimer? = null
+    private lateinit var muteController: MuteController
 
     // MARK: Lifecycle
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_capture)
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+
+        muteController = MuteController(this)
 
         // Add camera listener
         camera_view.addCameraListener(object : CameraListener() {
@@ -49,6 +52,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         // Add take picture button listener
         btn_take_picture.setOnClickListener {
             showProgressDialog(true)
+            camera_view.playSounds = !muteController.isMute()
             camera_view.takePicture()
         }
 
