@@ -8,25 +8,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleObserver
 
-class CameraPlugin(private val activity: AppCompatActivity) : LifecycleObserver {
+class CameraPlugin(private val activity: Activity) : LifecycleObserver {
+
+    private val requestCode = 1909
 
     private var listener: CameraPluginListener? = null
-
-    private val startForResult =
-            activity.prepareCall(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-                if (result.resultCode == Activity.RESULT_OK) {
-                    listener?.let {
-                        val photoPath = result.data?.getStringExtra("photo")
-                        if (photoPath != null) {
-                            it.onSuccess(photoPath)
-                        } else {
-                            it.onCancel()
-                        }
-                    }
-                } else {
-                    listener?.onCancel()
-                }
-            }
 
     fun setCameraPluginListener(listener: CameraPluginListener?) {
         this.listener = listener
@@ -39,7 +25,35 @@ class CameraPlugin(private val activity: AppCompatActivity) : LifecycleObserver 
         intent.putExtra("disable_mirror", options.disableMirroring)
         intent.putExtra("max_size", options.maxSize)
         intent.putExtra("quality", options.quality)
-        startForResult(intent)
+
+        if (activity is AppCompatActivity) {
+            val startForResult =
+                    activity.prepareCall(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+                        onActivityResult(requestCode, result.resultCode, result.data)
+                    }
+            startForResult(intent)
+        } else {
+            activity.startActivityForResult(intent, requestCode)
+        }
+    }
+
+    fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode != this.requestCode) {
+            return
+        }
+
+        if (resultCode == Activity.RESULT_OK) {
+            listener?.let {
+                val photoPath = data?.getStringExtra("photo")
+                if (photoPath != null) {
+                    it.onSuccess(photoPath)
+                } else {
+                    it.onCancel()
+                }
+            }
+        } else {
+            listener?.onCancel()
+        }
     }
 }
 
