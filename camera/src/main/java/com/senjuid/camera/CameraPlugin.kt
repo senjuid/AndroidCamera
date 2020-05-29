@@ -19,12 +19,7 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
     }
 
     fun open(options: CameraPluginOptions) {
-        val intent = Intent(activity, CaptureActivity::class.java)
-        intent.putExtra("name", options.name)
-        intent.putExtra("disable_back", options.disableFacingBack)
-        intent.putExtra("disable_mirror", options.disableMirroring)
-        intent.putExtra("max_size", options.maxSize)
-        intent.putExtra("quality", options.quality)
+        val intent = getIntent(options)
 
         if (activity is AppCompatActivity) {
             val startForResult =
@@ -35,6 +30,16 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
         } else {
             activity.startActivityForResult(intent, requestCode)
         }
+    }
+
+    fun getIntent(options: CameraPluginOptions): Intent {
+        val intent = Intent(activity, CaptureActivity::class.java)
+        intent.putExtra("name", options.name)
+        intent.putExtra("disable_back", options.disableFacingBack)
+        intent.putExtra("disable_mirror", options.disableMirroring)
+        intent.putExtra("max_size", options.maxSize)
+        intent.putExtra("quality", options.quality)
+        return intent
     }
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
