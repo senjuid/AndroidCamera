@@ -10,7 +10,9 @@ import androidx.lifecycle.LifecycleObserver
 
 class CameraPlugin(private val activity: Activity) : LifecycleObserver {
 
-    private val requestCode = 1909
+    companion object {
+        const val REQUEST = 1909
+    }
 
     private var listener: CameraPluginListener? = null
 
@@ -24,11 +26,11 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
         if (activity is AppCompatActivity) {
             val startForResult =
                     activity.prepareCall(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-                        onActivityResult(requestCode, result.resultCode, result.data)
+                        onActivityResult(REQUEST, result.resultCode, result.data)
                     }
             startForResult(intent)
         } else {
-            activity.startActivityForResult(intent, requestCode)
+            activity.startActivityForResult(intent, REQUEST)
         }
     }
 
@@ -43,7 +45,7 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
     }
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode != this.requestCode) {
+        if (requestCode != REQUEST) {
             return
         }
 
