@@ -16,6 +16,10 @@ import com.otaliastudios.cameraview.PictureResult
 import com.otaliastudios.cameraview.controls.Facing
 import com.otaliastudios.cameraview.controls.Flash
 import kotlinx.android.synthetic.main.activity_capture.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -32,6 +36,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
     private var photo: String = "img_default"
     private var countDownTimer: CountDownTimer? = null
     private lateinit var muteController: MuteController
+    private var bitmapResult: Bitmap? = null
 
     // MARK: Lifecycle
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,7 +49,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         // Add camera listener
         camera_view.addCameraListener(object : CameraListener() {
             override fun onPictureTaken(result: PictureResult) {
-                savePictureResult(result)
+                previewResult(result)
             }
         })
         camera_view.cameraOptions
@@ -78,11 +83,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
 
         // Add select picture button listener
         btn_select_picture.setOnClickListener {
-            //            Toast.makeText(this, imageFileTemp?.absolutePath, Toast.LENGTH_LONG).show()
-            val returnIntent = Intent()
-            returnIntent.putExtra("photo", imageFileTemp?.absolutePath)
-            setResult(Activity.RESULT_OK, returnIntent)
-            finish()
+            saveBitmapAndFinish()
         }
 
         btn_flash_on.setOnClickListener {
@@ -165,58 +166,53 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
     //
     // MARK: Own methods
     //
-    private fun savePictureResult(data: PictureResult?) {
+    private fun previewResult(data: PictureResult) {
         var maxSize = intent.getIntExtra("max_size", 0)
         if (maxSize > 0) {
             data?.toBitmap(maxSize!!, maxSize!!) {
-                it?.let {
-                    val bmpSaved = savePictureResultBitmap(it)
-                    if (bmpSaved != null) {
-                        iv_preview.setImageBitmap(bmpSaved)
-                        viewMode(false)
-                    }
-                }
-
-                // Dismiss progress
+                iv_preview.setImageBitmap(it)
                 showProgressDialog(false)
+                viewMode(false)
+                bitmapResult = it
             }
         } else {
             data?.toBitmap {
-                it?.let {
-                    val bmpSaved = savePictureResultBitmap(it)
-                    if (bmpSaved != null) {
-                        iv_preview.setImageBitmap(bmpSaved)
-                        viewMode(false)
-                    }
-                }
-
-                // Dismiss progress
+                iv_preview.setImageBitmap(it)
                 showProgressDialog(false)
+                viewMode(false)
+                bitmapResult = it
             }
         }
     }
 
-    private fun savePictureResultBitmap(it: Bitmap): Bitmap? {
-        var bmp: Bitmap
+    private fun saveBitmapAndFinish() {
+        bitmapResult?.let {
+            var bmp = it
+            CoroutineScope(Dispatchers.IO).launch {
+                // Mirroring option
+                val snapshot = intent.getBooleanExtra("is_snapshot", true)
+                var disableMirror = intent.getBooleanExtra("disable_mirror", true)
+                if (camera_view.facing == Facing.FRONT && disableMirror!! && !snapshot) {
+                    bmp = it.flip(-1f, 1f, it.width / 2f, it.height / 2f)
+                }
 
-        // Mirroring option
-        val snapshot = intent.extras.getBoolean("is_snapshot", true)
-        var disableMirror = intent.extras?.getBoolean("disable_mirror", true)
-        bmp = if (camera_view.facing == Facing.FRONT && disableMirror!! && !snapshot) {
-            it.flip(-1f, 1f, it.width / 2f, it.height / 2f)
-        } else {
-            it
+                // Save picture to sdcard
+                var compress = intent.getIntExtra("quality", 100)
+                val prefix = intent.getStringExtra("name")
+                val fileName = createFileName(prefix)
+                val file = File(folder, fileName)
+                val fileOutputStream = FileOutputStream(file)
+                bmp.compress(Bitmap.CompressFormat.JPEG, compress!!, fileOutputStream)
+
+                withContext(Dispatchers.Main) {
+                    // Finish
+                    val returnIntent = Intent()
+                    returnIntent.putExtra("photo", file?.absolutePath)
+                    setResult(Activity.RESULT_OK, returnIntent)
+                    finish()
+                }
+            }
         }
-
-        // Save picture to sdcard
-        var compress = intent.extras?.getInt("quality", 100)
-        val prefix = intent.getStringExtra("name")
-        val fileName = createFileName(prefix)
-        imageFileTemp = File(folder, fileName)
-        val fileOutputStream = FileOutputStream(imageFileTemp)
-        bmp.compress(Bitmap.CompressFormat.JPEG, compress!!, fileOutputStream)
-
-        return bmp
     }
 
     private fun Bitmap.flip(x: Float, y: Float, cx: Float, cy: Float): Bitmap {
