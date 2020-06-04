@@ -166,18 +166,33 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
     // MARK: Own methods
     //
     private fun savePictureResult(data: PictureResult?) {
-        var maxSize = intent.extras?.getInt("max_size")
-        data?.toBitmap(maxSize!!, maxSize!!) {
-            it?.let {
-                val bmpSaved = savePictureResultBitmap(it)
-                if (bmpSaved != null) {
-                    iv_preview.setImageBitmap(bmpSaved)
-                    viewMode(false)
+        var maxSize = intent.getIntExtra("max_size", 0)
+        if (maxSize > 0) {
+            data?.toBitmap(maxSize!!, maxSize!!) {
+                it?.let {
+                    val bmpSaved = savePictureResultBitmap(it)
+                    if (bmpSaved != null) {
+                        iv_preview.setImageBitmap(bmpSaved)
+                        viewMode(false)
+                    }
                 }
-            }
 
-            // Dismiss progress
-            showProgressDialog(false)
+                // Dismiss progress
+                showProgressDialog(false)
+            }
+        } else {
+            data?.toBitmap {
+                it?.let {
+                    val bmpSaved = savePictureResultBitmap(it)
+                    if (bmpSaved != null) {
+                        iv_preview.setImageBitmap(bmpSaved)
+                        viewMode(false)
+                    }
+                }
+
+                // Dismiss progress
+                showProgressDialog(false)
+            }
         }
     }
 

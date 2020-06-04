@@ -27,10 +27,10 @@ class Main2Activity : AppCompatActivity() {
             }
         })
 
-        val quality = et_quality.text.toString().toInt()
-        val maxSize = et_max_size.text.toString().toInt()
-
         button_click.setOnClickListener {
+            val quality = et_quality.text.toString().toInt()
+            val maxSize = et_max_size.text.toString().toInt()
+
             val options = CameraPluginOptions.Builder()
                     .setMaxSize(maxSize)
                     .setQuality(quality)
@@ -39,8 +39,9 @@ class Main2Activity : AppCompatActivity() {
         }
     }
 
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        cameraPlugin?.onActivityResult(requestCode, resultCode, data)
-//        super.onActivityResult(requestCode, resultCode, data)
-//    }
+    /** Uncomment if the activity isn't androidx.appcompat.app.AppCompatActivity */
+    /*override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        cameraPlugin?.onActivityResult(requestCode, resultCode, data)
+        super.onActivityResult(requestCode, resultCode, data)
+    }*/
 }
