@@ -53,7 +53,12 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         btn_take_picture.setOnClickListener {
             showProgressDialog(true)
             camera_view.playSounds = !muteController.isMute()
-            camera_view.takePicture()
+            val snapshot = intent.extras.getBoolean("is_snapshot", true)
+            if (snapshot) {
+                camera_view.takePictureSnapshot() // faster
+            } else {
+                camera_view.takePicture()
+            }
         }
 
         // Add back button listener
@@ -162,52 +167,34 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
     //
     private fun savePictureResult(data: PictureResult?) {
         var maxSize = intent.extras?.getInt("max_size")
-        if (maxSize == null || maxSize == 0) {
-
-            // Picture doesn't resized
-            data?.toBitmap {
-                it?.let {
-                    val bmpSaved = savePictureResultBitmap(it)
-                    if (bmpSaved != null) {
-                        iv_preview.setImageBitmap(bmpSaved)
-                        viewMode(false)
-                    }
+        data?.toBitmap(maxSize!!, maxSize!!) {
+            it?.let {
+                val bmpSaved = savePictureResultBitmap(it)
+                if (bmpSaved != null) {
+                    iv_preview.setImageBitmap(bmpSaved)
+                    viewMode(false)
                 }
-
-                // Dismiss progress
-                showProgressDialog(false)
             }
-        } else {
 
-            // Picture resized
-            data?.toBitmap(maxSize!!, maxSize!!) {
-                it?.let {
-                    val bmpSaved = savePictureResultBitmap(it)
-                    if (bmpSaved != null) {
-                        iv_preview.setImageBitmap(bmpSaved)
-                        viewMode(false)
-                    }
-                }
-
-                // Dismiss progress
-                showProgressDialog(false)
-            }
+            // Dismiss progress
+            showProgressDialog(false)
         }
     }
 
     private fun savePictureResultBitmap(it: Bitmap): Bitmap? {
-        // Extras
-        var disableMirror = intent.extras?.getBoolean("disable_mirror", true)
-        var compress = intent.extras?.getInt("quality", 100)
+        var bmp: Bitmap
 
         // Mirroring option
-        val bmp = if (camera_view.facing == Facing.FRONT && disableMirror!!) {
+        val snapshot = intent.extras.getBoolean("is_snapshot", true)
+        var disableMirror = intent.extras?.getBoolean("disable_mirror", true)
+        bmp = if (camera_view.facing == Facing.FRONT && disableMirror!! && !snapshot) {
             it.flip(-1f, 1f, it.width / 2f, it.height / 2f)
         } else {
             it
         }
 
         // Save picture to sdcard
+        var compress = intent.extras?.getInt("quality", 100)
         val prefix = intent.getStringExtra("name")
         val fileName = createFileName(prefix)
         imageFileTemp = File(folder, fileName)
