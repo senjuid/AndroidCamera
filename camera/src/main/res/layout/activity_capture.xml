@@ -12,7 +12,7 @@
         app:cameraExperimental="true"
         app:cameraFacing="front"
         app:cameraFlash="off"
-        app:cameraAudio="mono"
+        app:cameraAudio="off"
         app:cameraMode="picture"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
