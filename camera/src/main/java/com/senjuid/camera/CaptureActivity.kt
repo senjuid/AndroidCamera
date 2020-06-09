@@ -15,6 +15,7 @@ import com.otaliastudios.cameraview.CameraListener
 import com.otaliastudios.cameraview.PictureResult
 import com.otaliastudios.cameraview.controls.Facing
 import com.otaliastudios.cameraview.controls.Flash
+import com.otaliastudios.cameraview.size.SizeSelectors
 import kotlinx.android.synthetic.main.activity_capture.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +25,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
+
 
 /**
  * Created by Hendi, 19 Sep 2019
@@ -53,6 +55,7 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
             }
         })
         camera_view.cameraOptions
+        camera_view.setPictureSize(SizeSelectors.smallest())
 
         // Add take picture button listener
         btn_take_picture.setOnClickListener {
