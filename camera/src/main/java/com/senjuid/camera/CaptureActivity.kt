@@ -34,7 +34,6 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
 
     private var runTimePermission: RunTimePermission? = null
     private var folder: File? = null
-    private var imageFileTemp: File? = null
     private var photo: String = "img_default"
     private var countDownTimer: CountDownTimer? = null
     private lateinit var muteController: MuteController
