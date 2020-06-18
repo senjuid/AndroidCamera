@@ -9,7 +9,8 @@
         android:id="@+id/camera_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
         android:keepScreenOn="true"
         app:cameraAudio="off"
         app:cameraEngine="camera2"
@@ -40,6 +41,13 @@
             android:background="@android:color/transparent"
             android:scaleType="centerInside"
             android:src="@drawable/ic_change_camera" />
+
+        <ImageView
+            android:id="@+id/hintTextView"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_camera1" />
 
         <ImageButton
             android:id="@+id/btn_take_picture"
@@ -75,7 +83,7 @@
         android:layout_height="0dp"
         android:background="@android:color/black"
         android:clickable="true"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
