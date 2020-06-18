@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.Handler
 import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
@@ -26,6 +27,21 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
     private lateinit var muteController: MuteController
     private lateinit var helper: CaptureActivityHelper
 
+    private val cameraListener = object : CameraListener() {
+        override fun onPictureTaken(result: PictureResult) {
+            if (camera_view.flash == Flash.TORCH) {
+                camera_view.flash = Flash.OFF
+            }
+
+            var maxSize = intent.getIntExtra("max_size", 0)
+            helper.pictureResultHandler(result, maxSize) {
+                iv_preview.setImageBitmap(it)
+                showProgressDialog(false)
+                viewMode(false)
+            }
+        }
+    }
+
     // MARK: Lifecycle
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,29 +52,27 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         muteController = MuteController(this)
 
         // Add camera listener
-        camera_view.addCameraListener(object : CameraListener() {
-            override fun onPictureTaken(result: PictureResult) {
-                var maxSize = intent.getIntExtra("max_size", 0)
-                helper.pictureResultHandler(result, maxSize) {
-                    iv_preview.setImageBitmap(it)
-                    showProgressDialog(false)
-                    viewMode(false)
-                }
-            }
-        })
         camera_view.setLifecycleOwner(this)
+        camera_view.addCameraListener(cameraListener)
         camera_view.setPictureSize(SizeSelectors.smallest())
 
         // Add take picture button listener
         btn_take_picture.setOnClickListener {
-            showProgressDialog(true)
-            camera_view.playSounds = !muteController.isMute()
-            val snapshot = intent.extras.getBoolean("is_snapshot", true)
-            if (snapshot) {
-                camera_view.takePictureSnapshot() // faster
-            } else {
-                camera_view.takePicture()
+            var delay: Long = 0
+            if (btn_flash_on.visibility == View.VISIBLE && camera_view.facing == Facing.BACK) {
+                camera_view.flash = Flash.TORCH
+                delay = 1000
             }
+            showProgressDialog(true)
+            Handler().postDelayed({
+                camera_view.playSounds = !muteController.isMute()
+                val snapshot = intent.extras.getBoolean("is_snapshot", true)
+                if (snapshot) {
+                    camera_view.takePictureSnapshot() // faster
+                } else {
+                    camera_view.takePicture()
+                }
+            }, delay)
         }
 
         // Add back button listener
@@ -87,13 +101,11 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         }
 
         btn_flash_on.setOnClickListener {
-            camera_view.flash = Flash.OFF
             btn_flash_on.visibility = View.GONE;
             btn_flash_off.visibility = View.VISIBLE
         }
 
         btn_flash_off.setOnClickListener {
-            camera_view.flash = Flash.ON
             btn_flash_on.visibility = View.VISIBLE
             btn_flash_off.visibility = View.GONE
         }
