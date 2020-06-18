@@ -19,7 +19,7 @@
         app:layout_constraintBottom_toTopOf="@+id/et_max_size"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:text="100"/>
+        android:text="75"/>
 
     <EditText
         android:id="@+id/et_max_size"
@@ -34,7 +34,7 @@
         app:layout_constraintBottom_toTopOf="@+id/button_click"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:text="1024"/>
+        android:text="1920"/>
 
     <Button
         android:id="@+id/button_click"
