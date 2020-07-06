@@ -1,6 +1,5 @@
 package com.senjuid.camera
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -16,13 +15,11 @@ import com.otaliastudios.cameraview.controls.Flash
 import com.otaliastudios.cameraview.size.SizeSelectors
 import kotlinx.android.synthetic.main.activity_capture.*
 
-
 /**
  * Created by Hendi, 19 Sep 2019
  * */
-class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermissionListener {
+class CaptureActivity : AppCompatActivity() {
 
-    private var runTimePermission: RunTimePermission? = null
     private var countDownTimer: CountDownTimer? = null
     private lateinit var muteController: MuteController
     private lateinit var helper: CaptureActivityHelper
@@ -114,9 +111,6 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         // set view mode
         viewMode(true)
 
-        // prepare (grant permission and make directory)
-        prepare()
-
         // check front disable front camera
         if (intent.getBooleanExtra("disable_back", false)) {
             btn_switch_camera.visibility = View.GONE
@@ -148,16 +142,14 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
             }
         }
         countDownTimer?.start()
+
+        // Create directory
+        helper.createDirectory(this)
     }
 
     override fun onStop() {
         countDownTimer?.cancel()
         super.onStop()
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        runTimePermission?.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     private fun showProgressDialog(show: Boolean) {
@@ -170,26 +162,5 @@ class CaptureActivity : AppCompatActivity(), RunTimePermission.RunTimePermission
         } else {
             layout_preview.visibility = View.VISIBLE
         }
-    }
-
-    private fun prepare() {
-        runTimePermission = RunTimePermission(this)
-        runTimePermission?.requestPermission(
-                arrayOf(
-                        Manifest.permission.CAMERA,
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                this)
-    }
-
-    //
-    // MARK: RunTimePermission.RunTimePermissionListener
-    //
-    override fun permissionGranted() {
-        helper.createDirectory()
-    }
-
-    override fun permissionDenied() {
-        finish()
     }
 }

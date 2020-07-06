@@ -1,9 +1,9 @@
 package com.senjuid.camera
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Matrix
-import android.os.Environment
 import com.otaliastudios.cameraview.PictureResult
 import com.otaliastudios.cameraview.controls.Facing
 import kotlinx.coroutines.CoroutineScope
@@ -12,7 +12,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import java.util.*
 
 class CaptureActivityHelper {
@@ -20,20 +19,15 @@ class CaptureActivityHelper {
     private var photo: String = "img_default"
     private var folder: File? = null
 
-    fun createDirectory() {
-        val dirPath = "${Environment.getExternalStorageDirectory().path}/GreatDayHR"
+    fun createDirectory(context: Context) {
+        var rootPath = context.cacheDir.path
+        if (rootPath.isNullOrEmpty()) {
+            rootPath = context.filesDir.path
+        }
+        val dirPath = "${rootPath}/GreatDayHR"
         folder = File(dirPath)
         if (folder?.exists() == false) {
             folder?.mkdirs()
-
-            // Create .nomedia file
-            val noMediaPath = "${folder?.path}/.nomedia"
-            val noMediaFile = File(noMediaPath)
-            try {
-                noMediaFile.createNewFile()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
         }
     }
 
