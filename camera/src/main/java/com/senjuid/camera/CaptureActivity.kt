@@ -20,8 +20,7 @@ import kotlinx.android.synthetic.main.activity_capture.*
  * */
 class CaptureActivity : AppCompatActivity() {
 
-    private var countDownTimer: CountDownTimer? = null
-    
+    private lateinit var pageFinisher: PageFinisher
     private lateinit var helper: CaptureActivityHelper
 
     private val cameraListener = object : CameraListener() {
@@ -47,6 +46,9 @@ class CaptureActivity : AppCompatActivity() {
 
         // Init helper
         helper = CaptureActivityHelper(getStorage())
+
+        // Init page timer
+        pageFinisher = PageFinisher(this, 10 * 1000 * 60)
 
         // Add camera listener
         camera_view.setLifecycleOwner(this)
@@ -129,23 +131,15 @@ class CaptureActivity : AppCompatActivity() {
                 }
             }
         }
+    }
 
-        // init countdown timer
-        countDownTimer?.cancel()
-        val timerTime: Long = 10 * 1000 * 60 //10 minutes
-        countDownTimer = object : CountDownTimer(timerTime, 1000) {
-            override fun onFinish() {
-                this@CaptureActivity.finish()
-            }
-
-            override fun onTick(millisUntilFinished: Long) {
-            }
-        }
-        countDownTimer?.start()
+    override fun onStart() {
+        super.onStart()
+        pageFinisher.start()
     }
 
     override fun onStop() {
-        countDownTimer?.cancel()
+        pageFinisher.cancel()
         super.onStop()
     }
 
@@ -159,5 +153,27 @@ class CaptureActivity : AppCompatActivity() {
         } else {
             layout_preview.visibility = View.VISIBLE
         }
+    }
+}
+
+// Page Timer: Force page close
+class PageFinisher(private val activity: Activity?, private val duration: Long) {
+    private var countDownTimer: CountDownTimer? = null
+
+    fun start() {
+        countDownTimer?.cancel()
+        countDownTimer = object : CountDownTimer(duration, 1000) {
+            override fun onFinish() {
+                activity?.finish()
+            }
+
+            override fun onTick(millisUntilFinished: Long) {
+            }
+        }
+        countDownTimer?.start()
+    }
+
+    fun cancel() {
+        countDownTimer?.cancel()
     }
 }
