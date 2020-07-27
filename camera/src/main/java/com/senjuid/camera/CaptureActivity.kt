@@ -21,7 +21,7 @@ import kotlinx.android.synthetic.main.activity_capture.*
 class CaptureActivity : AppCompatActivity() {
 
     private var countDownTimer: CountDownTimer? = null
-    private lateinit var muteController: MuteController
+    
     private lateinit var helper: CaptureActivityHelper
 
     private val cameraListener = object : CameraListener() {
@@ -45,8 +45,8 @@ class CaptureActivity : AppCompatActivity() {
         setContentView(R.layout.activity_capture)
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
-        helper = CaptureActivityHelper()
-        muteController = MuteController(this)
+        // Init helper
+        helper = CaptureActivityHelper(getStorage())
 
         // Add camera listener
         camera_view.setLifecycleOwner(this)
@@ -62,7 +62,7 @@ class CaptureActivity : AppCompatActivity() {
             }
             showProgressDialog(true)
             Handler().postDelayed({
-                camera_view.playSounds = !muteController.isMute()
+                camera_view.playSounds = isAudioServiceMute()
                 val snapshot = intent.extras.getBoolean("is_snapshot", true)
                 if (snapshot) {
                     camera_view.takePictureSnapshot() // faster
@@ -142,9 +142,6 @@ class CaptureActivity : AppCompatActivity() {
             }
         }
         countDownTimer?.start()
-
-        // Create directory
-        helper.createDirectory(this)
     }
 
     override fun onStop() {
