@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.util.*
 
 class CaptureActivityHelper(private val storage: File) {
     private val photo: String = "img_default"
@@ -62,20 +61,5 @@ class CaptureActivityHelper(private val storage: File) {
         return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
     }
 
-    private fun createFileName(prefixName: String?): String {
-        val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = if (calendar.get(Calendar.MONTH) + 1 < 10) {
-            "0" + (calendar.get(Calendar.MONTH) + 1)
-        } else {
-            "" + (calendar.get(Calendar.MONTH) + 1)
-        }
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-        return if (prefixName?.isEmpty() == true) {
-            "$photo${"_"}$year$month$day${"_"}${System.currentTimeMillis()}.png"
-        } else {
-            "$prefixName${"_"}$year$month$day${"_"}${System.currentTimeMillis()}.png"
-        }
-    }
 }
