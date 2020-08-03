@@ -5,7 +5,6 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.net.Uri
 import android.provider.MediaStore
-import android.widget.Toast
 import androidx.activity.invoke
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,7 +14,8 @@ import java.io.File
 
 class NativeCameraHelper(private val imageFileManager: ImageFileManager) : ContextWrapper(imageFileManager.baseContext) {
 
-    var imageUri: Uri? = null
+    private var imageUri: Uri? = null
+    private var listener: CameraPluginListener? = null
 
     companion object {
         const val REQUEST_IMAGE_CAPTURE = 2310
@@ -41,9 +41,13 @@ class NativeCameraHelper(private val imageFileManager: ImageFileManager) : Conte
         }
     }
 
+    fun setCameraPluginListener(listener: CameraPluginListener?) {
+        this.listener = listener
+    }
+
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        imageUri?.let {
-            Toast.makeText(baseContext, it.path, Toast.LENGTH_LONG).show()
+        if (imageUri != null && listener != null) {
+            listener?.onSuccess(imageUri?.path!!)
         }
     }
 }

@@ -53,10 +53,7 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
             if (resultCode == Activity.RESULT_OK) {
                 val performNativeCamera = data?.getBooleanExtra("native", false)
                 if (performNativeCamera!!) {
-                    val options = CameraPluginOptions.Builder()
-                            .setName("native")
-                            .build()
-                    nativeCameraHelper.open(options)
+                    openNativeCamera()
                 } else {
                     listener?.let {
                         val photoPath = data?.getStringExtra("photo")
@@ -73,6 +70,14 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
         } else if (requestCode == NativeCameraHelper.REQUEST_IMAGE_CAPTURE) {
             nativeCameraHelper.onActivityResult(requestCode, resultCode, data)
         }
+    }
+
+    private fun openNativeCamera() {
+        val options = CameraPluginOptions.Builder()
+                .setName("native")
+                .build()
+        nativeCameraHelper.setCameraPluginListener(listener)
+        nativeCameraHelper.open(options)
     }
 }
 
