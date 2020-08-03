@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.ContextWrapper
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.invoke
@@ -23,7 +24,7 @@ class NativeCameraHelper(private val activity: Activity) : ContextWrapper(activi
 
     fun open(cameraPluginOptions: CameraPluginOptions) {
         val file = File(activity.getStorage(), createFileName(cameraPluginOptions.name))
-        imageUri = FileProvider.getUriForFile(activity, "hendi.fileprovider", file)
+        imageUri = FileProvider.getUriForFile(activity, "${activity.packageName}.provider", file)
 
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
