@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.ContextWrapper
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.invoke
@@ -14,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import java.io.File
 
-class NativeCameraHelper(private val activity: Activity) : ContextWrapper(activity) {
+class NativeCameraHelper(private val imageFileManager: ImageFileManager) : ContextWrapper(imageFileManager.baseContext) {
 
     var imageUri: Uri? = null
 
@@ -23,28 +22,28 @@ class NativeCameraHelper(private val activity: Activity) : ContextWrapper(activi
     }
 
     fun open(cameraPluginOptions: CameraPluginOptions) {
-        val file = File(activity.getStorage(), createFileName(cameraPluginOptions.name))
-        imageUri = FileProvider.getUriForFile(activity, "${activity.packageName}.provider", file)
+        val file = File(imageFileManager.getDir(), imageFileManager.generateFileName(cameraPluginOptions.name))
+        imageUri = FileProvider.getUriForFile(baseContext, "${baseContext.packageName}.provider", file)
 
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
 
         intent.resolveActivity(packageManager)?.let {
-            if (activity is AppCompatActivity) {
+            if (baseContext is AppCompatActivity) {
                 val startForResult =
-                        activity.prepareCall(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+                        (imageFileManager.baseContext as AppCompatActivity).prepareCall(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
                             onActivityResult(REQUEST_IMAGE_CAPTURE, result.resultCode, result.data)
                         }
                 startForResult(intent)
             } else {
-                activity.startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
+                (baseContext as Activity).startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
             }
         }
     }
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         imageUri?.let {
-            Toast.makeText(activity, it.path, Toast.LENGTH_LONG).show()
+            Toast.makeText(baseContext, it.path, Toast.LENGTH_LONG).show()
         }
     }
 }

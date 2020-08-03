@@ -12,8 +12,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
-class CaptureActivityHelper(private val storage: File) {
-    private val photo: String = "img_default"
+class CaptureActivityHelper(private val imageFileManager: ImageFileManager) {
     private var bitmapResult: Bitmap? = null
 
     fun pictureResultHandler(data: PictureResult, maxSize: Int, callback: (Bitmap?) -> Unit) {
@@ -44,8 +43,8 @@ class CaptureActivityHelper(private val storage: File) {
                 // Save picture to sdcard
                 var compress = intent.getIntExtra("quality", 100)
                 val prefix = intent.getStringExtra("name")
-                val fileName = createFileName(prefix)
-                val file = File(storage, fileName)
+                val fileName = imageFileManager.generateFileName(prefix)
+                val file = File(imageFileManager.getDir(), fileName)
                 val fileOutputStream = FileOutputStream(file)
                 bmp.compress(Bitmap.CompressFormat.JPEG, compress!!, fileOutputStream)
 
@@ -60,6 +59,4 @@ class CaptureActivityHelper(private val storage: File) {
         val matrix = Matrix().apply { postScale(x, y, cx, cy) }
         return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
     }
-
-
 }

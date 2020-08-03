@@ -1,6 +1,7 @@
 package com.senjuid.camera
 
 import android.content.Context
+import android.content.ContextWrapper
 import java.io.File
 import java.util.*
 
@@ -9,9 +10,10 @@ interface IImageFilerManager {
     fun createDir(): Boolean;
     fun getDir(): File
     fun generateFileName(prefix: String?): String
+    fun getImageFile(imagePath: String): File
 }
 
-class ImageFileManager(private val context: Context) : IImageFilerManager {
+class ImageFileManager(context: Context) : IImageFilerManager, ContextWrapper(context) {
 
     private var dirPath: String
 
@@ -51,5 +53,9 @@ class ImageFileManager(private val context: Context) : IImageFilerManager {
         } else {
             "$prefix${"_"}$year$month$day${"_"}${System.currentTimeMillis()}.png"
         }
+    }
+
+    override fun getImageFile(imagePath: String): File {
+        TODO("Not yet implemented")
     }
 }

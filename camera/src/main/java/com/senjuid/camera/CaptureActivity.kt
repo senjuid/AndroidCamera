@@ -22,6 +22,7 @@ class CaptureActivity : AppCompatActivity() {
 
     private lateinit var pageFinisher: PageFinisher
     private lateinit var helper: CaptureActivityHelper
+    private lateinit var imageFileManager: ImageFileManager
 
     private val cameraListener = object : CameraListener() {
         override fun onPictureTaken(result: PictureResult) {
@@ -44,8 +45,12 @@ class CaptureActivity : AppCompatActivity() {
         setContentView(R.layout.activity_capture)
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
+        // Init file manager
+        imageFileManager = ImageFileManager(this)
+        imageFileManager.createDir()
+
         // Init helper
-        helper = CaptureActivityHelper(getStorage())
+        helper = CaptureActivityHelper(imageFileManager)
 
         // Init page timer
         pageFinisher = PageFinisher(this, 10 * 1000 * 60)
