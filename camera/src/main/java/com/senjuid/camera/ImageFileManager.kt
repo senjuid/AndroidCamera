@@ -10,7 +10,6 @@ interface IImageFilerManager {
     fun createDir(): Boolean;
     fun getDir(): File
     fun generateFileName(prefix: String?): String
-    fun getImageFile(imagePath: String): File
 }
 
 class ImageFileManager(context: Context) : IImageFilerManager, ContextWrapper(context) {
@@ -49,13 +48,9 @@ class ImageFileManager(context: Context) : IImageFilerManager, ContextWrapper(co
         val day = calendar.get(Calendar.DAY_OF_MONTH)
 
         return if (prefix?.isNullOrEmpty() == true) {
-            "${"img_default_"}$year$month$day${"_"}${System.currentTimeMillis()}.png"
+            "${"img_default_"}$year$month$day${"_"}${System.currentTimeMillis()}"
         } else {
-            "$prefix${"_"}$year$month$day${"_"}${System.currentTimeMillis()}.png"
+            "$prefix${"_"}$year$month$day${"_"}${System.currentTimeMillis()}"
         }
-    }
-
-    override fun getImageFile(imagePath: String): File {
-        TODO("Not yet implemented")
     }
 }

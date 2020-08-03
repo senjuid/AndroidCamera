@@ -44,7 +44,7 @@ class CaptureActivityHelper(private val imageFileManager: ImageFileManager) {
                 var compress = intent.getIntExtra("quality", 100)
                 val prefix = intent.getStringExtra("name")
                 val fileName = imageFileManager.generateFileName(prefix)
-                val file = File(imageFileManager.getDir(), fileName)
+                val file = File(imageFileManager.getDir(), "$fileName.png")
                 val fileOutputStream = FileOutputStream(file)
                 bmp.compress(Bitmap.CompressFormat.JPEG, compress!!, fileOutputStream)
 

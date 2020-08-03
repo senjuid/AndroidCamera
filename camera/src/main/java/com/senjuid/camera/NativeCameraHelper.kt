@@ -3,7 +3,6 @@ package com.senjuid.camera
 import android.app.Activity
 import android.content.ContextWrapper
 import android.content.Intent
-import android.net.Uri
 import android.provider.MediaStore
 import androidx.activity.invoke
 import androidx.activity.result.ActivityResult
@@ -12,9 +11,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import java.io.File
 
+
 class NativeCameraHelper(private val imageFileManager: ImageFileManager) : ContextWrapper(imageFileManager.baseContext) {
 
-    private var imageUri: Uri? = null
+    private lateinit var imageFile: File
     private var listener: CameraPluginListener? = null
 
     companion object {
@@ -22,8 +22,13 @@ class NativeCameraHelper(private val imageFileManager: ImageFileManager) : Conte
     }
 
     fun open(cameraPluginOptions: CameraPluginOptions) {
-        val file = File(imageFileManager.getDir(), imageFileManager.generateFileName(cameraPluginOptions.name))
-        imageUri = FileProvider.getUriForFile(baseContext, "${baseContext.packageName}.provider", file)
+        try {
+            imageFile = File.createTempFile(imageFileManager.generateFileName(cameraPluginOptions.name), ".png", imageFileManager.getDir())
+        } catch (e: Exception) {
+            return
+        }
+
+        val imageUri = FileProvider.getUriForFile(baseContext, "${baseContext.packageName}.provider", imageFile)
 
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
@@ -46,8 +51,8 @@ class NativeCameraHelper(private val imageFileManager: ImageFileManager) : Conte
     }
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (imageUri != null && listener != null) {
-            listener?.onSuccess(imageUri?.path!!)
+        if (imageFile != null && listener != null) {
+            listener?.onSuccess(imageFile.absolutePath)
         }
     }
 }
