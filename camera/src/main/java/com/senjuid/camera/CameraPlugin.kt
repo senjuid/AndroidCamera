@@ -15,6 +15,9 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
     }
 
     private var listener: CameraPluginListener? = null
+    private val imageFileManager = ImageFileManager(activity)
+    private val nativeCameraHelper = NativeCameraHelper(imageFileManager)
+
 
     fun setCameraPluginListener(listener: CameraPluginListener?) {
         this.listener = listener
@@ -46,52 +49,39 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
     }
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode != REQUEST) {
-            return
-        }
-
-        if (resultCode == Activity.RESULT_OK) {
-            listener?.let {
-                val photoPath = data?.getStringExtra("photo")
-                if (photoPath != null) {
-                    it.onSuccess(photoPath)
+        if (requestCode == REQUEST) {
+            if (resultCode == Activity.RESULT_OK) {
+                val performNativeCamera = data?.getBooleanExtra("native", false)
+                if (performNativeCamera!!) {
+                    openNativeCamera()
                 } else {
-                    it.onCancel()
+                    listener?.let {
+                        val photoPath = data?.getStringExtra("photo")
+                        if (photoPath != null) {
+                            it.onSuccess(photoPath)
+                        } else {
+                            it.onCancel()
+                        }
+                    }
                 }
+            } else {
+                listener?.onCancel()
             }
-        } else {
-            listener?.onCancel()
+        } else if (requestCode == NativeCameraHelper.REQUEST_IMAGE_CAPTURE) {
+            nativeCameraHelper.onActivityResult(requestCode, resultCode, data)
         }
+    }
+
+    private fun openNativeCamera() {
+        val options = CameraPluginOptions.Builder()
+                .setName("native")
+                .build()
+        nativeCameraHelper.setCameraPluginListener(listener)
+        nativeCameraHelper.open(options)
     }
 }
 
 interface CameraPluginListener {
     fun onSuccess(photoPath: String)
     fun onCancel()
-}
-
-class CameraPluginOptions private constructor(
-        val maxSize: Int?,
-        val quality: Int?,
-        val name: String?,
-        val disableFacingBack: Boolean?,
-        val disableMirroring: Boolean?,
-        val snapshot: Boolean?
-) {
-    data class Builder(
-            private var maxSize: Int? = 0,
-            private var quality: Int? = 100,
-            private var name: String? = "img_lite",
-            private var disableFacingBack: Boolean? = false,
-            private var disableMirroring: Boolean? = true,
-            private var snapshot: Boolean? = true
-    ) {
-        fun setMaxSize(maxSize: Int) = apply { this.maxSize = maxSize }
-        fun setQuality(quality: Int) = apply { this.quality = quality }
-        fun setName(name: String) = apply { this.name = name }
-        fun setDisableFacingBack(disable: Boolean) = apply { this.disableFacingBack = disable }
-        fun setDisableMirroring(disable: Boolean) = apply { this.disableMirroring = disable }
-        fun setSnapshot(snapshot: Boolean) = apply { this.snapshot = snapshot }
-        fun build() = CameraPluginOptions(maxSize, quality, name, disableFacingBack, disableMirroring, snapshot)
-    }
 }

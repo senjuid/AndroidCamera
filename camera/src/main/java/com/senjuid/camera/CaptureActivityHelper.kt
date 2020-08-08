@@ -11,10 +11,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.util.*
 
-class CaptureActivityHelper(private val storage: File) {
-    private val photo: String = "img_default"
+class CaptureActivityHelper(private val imageFileManager: ImageFileManager) {
     private var bitmapResult: Bitmap? = null
 
     fun pictureResultHandler(data: PictureResult, maxSize: Int, callback: (Bitmap?) -> Unit) {
@@ -45,8 +43,8 @@ class CaptureActivityHelper(private val storage: File) {
                 // Save picture to sdcard
                 var compress = intent.getIntExtra("quality", 100)
                 val prefix = intent.getStringExtra("name")
-                val fileName = createFileName(prefix)
-                val file = File(storage, fileName)
+                val fileName = imageFileManager.generateFileName(prefix)
+                val file = File(imageFileManager.getDir(), "$fileName.png")
                 val fileOutputStream = FileOutputStream(file)
                 bmp.compress(Bitmap.CompressFormat.JPEG, compress!!, fileOutputStream)
 
@@ -60,22 +58,5 @@ class CaptureActivityHelper(private val storage: File) {
     private fun Bitmap.flip(x: Float, y: Float, cx: Float, cy: Float): Bitmap {
         val matrix = Matrix().apply { postScale(x, y, cx, cy) }
         return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
-    }
-
-    private fun createFileName(prefixName: String?): String {
-        val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = if (calendar.get(Calendar.MONTH) + 1 < 10) {
-            "0" + (calendar.get(Calendar.MONTH) + 1)
-        } else {
-            "" + (calendar.get(Calendar.MONTH) + 1)
-        }
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
-
-        return if (prefixName?.isEmpty() == true) {
-            "$photo${"_"}$year$month$day${"_"}${System.currentTimeMillis()}.png"
-        } else {
-            "$prefixName${"_"}$year$month$day${"_"}${System.currentTimeMillis()}.png"
-        }
     }
 }
