@@ -62,7 +62,7 @@ class NativeCameraHelper(private val imageFileManager: ImageFileManager) : Conte
                 println("Babay 12")
                 startForResult(intent)
             } else {
-                println("Babay 13")
+                println("Babay 13 $baseContext")
                 (baseContext as Activity).startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
             }
         }
