@@ -25,6 +25,10 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
 
     fun open(options: CameraPluginOptions) {
         val intent = getIntent(options)
+        
+        println("Babay open 1 $activity")
+        println("Babay open 2 $imageFileManager")
+        println("Babay open 3 $nativeCameraHelper")
 
         if (activity is AppCompatActivity) {
             val startForResult =
