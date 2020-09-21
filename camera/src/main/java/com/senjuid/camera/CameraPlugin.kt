@@ -8,7 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleObserver
 
-class CameraPlugin(private val activity: Activity, private val cordova: Any? = null) : LifecycleObserver {
+class CameraPlugin(private val activity: Activity) : LifecycleObserver {
 
     companion object {
         const val REQUEST = 1909
@@ -16,7 +16,7 @@ class CameraPlugin(private val activity: Activity, private val cordova: Any? = n
 
     private var listener: CameraPluginListener? = null
     private val imageFileManager = ImageFileManager(activity)
-    private val nativeCameraHelper = NativeCameraHelper(imageFileManager, cordova)
+    private val nativeCameraHelper = NativeCameraHelper(imageFileManager)
 
 
     fun setCameraPluginListener(listener: CameraPluginListener?) {
