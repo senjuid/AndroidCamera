@@ -14,7 +14,7 @@ import androidx.core.content.FileProvider
 import java.io.File
 
 
-class NativeCameraHelper(private val imageFileManager: ImageFileManager, private val cordova: Any? = null) : ContextWrapper(imageFileManager.baseContext) {
+class NativeCameraHelper(private val imageFileManager: ImageFileManager) : ContextWrapper(imageFileManager.baseContext) {
 
     private lateinit var imageFile: File
     private var listener: CameraPluginListener? = null
@@ -52,7 +52,7 @@ class NativeCameraHelper(private val imageFileManager: ImageFileManager, private
 
         intent.resolveActivity(packageManager)?.let {
             println("Babay 9")
-            if (baseContext is AppCompatActivity) {
+            //if (baseContext is AppCompatActivity) {
                 println("Babay 10")
                 val startForResult =
                         (imageFileManager.baseContext as AppCompatActivity).prepareCall(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
@@ -61,10 +61,10 @@ class NativeCameraHelper(private val imageFileManager: ImageFileManager, private
                         }
                 println("Babay 12")
                 startForResult(intent)
-            } else {
-                println("Babay 13 $baseContext")
-                (cordova as Activity).startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
-            }
+            //} else {
+              //  println("Babay 13 $baseContext")
+                //(baseContext as Activity).startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
+            //}
         }
     }
 
