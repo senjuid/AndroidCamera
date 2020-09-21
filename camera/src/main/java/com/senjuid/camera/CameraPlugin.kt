@@ -21,6 +21,10 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
 
     fun setCameraPluginListener(listener: CameraPluginListener?) {
         this.listener = listener
+        
+        println("Babay open 4 $activity")
+        println("Babay open 5 $imageFileManager")
+        println("Babay open 6 $nativeCameraHelper")
     }
 
     fun open(options: CameraPluginOptions) {
