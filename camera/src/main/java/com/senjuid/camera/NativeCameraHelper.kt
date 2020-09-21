@@ -57,6 +57,7 @@ class NativeCameraHelper(private val imageFileManager: ImageFileManager) : Conte
     }
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        println("Babay $listener $imageFile ${imageFile.absolutePath}")
         if (listener != null && imageFile != null && imageFile.exists()) {
             listener?.onSuccess(imageFile.absolutePath)
         }
