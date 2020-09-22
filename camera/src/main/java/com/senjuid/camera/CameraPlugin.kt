@@ -8,7 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleObserver
 
-class CameraPlugin(private val activity: Activity, private var cordova: CordovaInterface? = null) : LifecycleObserver {
+class CameraPlugin(private val activity: Activity) : LifecycleObserver {
 
     companion object {
         const val REQUEST = 1909
@@ -16,7 +16,7 @@ class CameraPlugin(private val activity: Activity, private var cordova: CordovaI
 
     private var listener: CameraPluginListener? = null
     private val imageFileManager = ImageFileManager(activity)
-    private val nativeCameraHelper = NativeCameraHelper(imageFileManager, this.cordova)
+    private val nativeCameraHelper = NativeCameraHelper(imageFileManager)
 
 
     fun setCameraPluginListener(listener: CameraPluginListener?) {
@@ -49,7 +49,7 @@ class CameraPlugin(private val activity: Activity, private var cordova: CordovaI
         }
     }
 
-    fun getIntent(options: CameraPluginOptions): Intent {
+    private fun getIntent(options: CameraPluginOptions): Intent {
         val intent = Intent(activity, CaptureActivity::class.java)
         intent.putExtra("name", options.name)
         intent.putExtra("disable_back", options.disableFacingBack)
@@ -60,7 +60,8 @@ class CameraPlugin(private val activity: Activity, private var cordova: CordovaI
         return intent
     }
 
-    fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    private fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        println("Babay lagi")
         if (requestCode == REQUEST) {
             if (resultCode == Activity.RESULT_OK) {
                 val performNativeCamera = data?.getBooleanExtra("native", false)

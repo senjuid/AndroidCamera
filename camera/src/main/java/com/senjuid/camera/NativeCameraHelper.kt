@@ -14,7 +14,7 @@ import androidx.core.content.FileProvider
 import java.io.File
 
 
-class NativeCameraHelper(private val imageFileManager: ImageFileManager, private val cordova: CordovaInterface? = null) : ContextWrapper(imageFileManager.baseContext) {
+class NativeCameraHelper(private val imageFileManager: ImageFileManager) : ContextWrapper(imageFileManager.baseContext) {
 
     private lateinit var imageFile: File
     private var listener: CameraPluginListener? = null
@@ -63,8 +63,7 @@ class NativeCameraHelper(private val imageFileManager: ImageFileManager, private
 //                startForResult(intent)
 //            } else {
                 println("Babay 13 $baseContext ${(baseContext as Activity)}")
-//                (baseContext as Activity).startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
-            cordova!!.getActivity().startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
+                (baseContext as Activity).startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
 //            }
         }
     }
