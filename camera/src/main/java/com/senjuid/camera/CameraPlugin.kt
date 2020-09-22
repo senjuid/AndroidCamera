@@ -49,7 +49,7 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
         }
     }
 
-    private fun getIntent(options: CameraPluginOptions): Intent {
+    fun getIntent(options: CameraPluginOptions): Intent {
         val intent = Intent(activity, CaptureActivity::class.java)
         intent.putExtra("name", options.name)
         intent.putExtra("disable_back", options.disableFacingBack)
@@ -60,7 +60,7 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
         return intent
     }
 
-    private fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         println("Babay lagi")
         if (requestCode == REQUEST) {
             if (resultCode == Activity.RESULT_OK) {
