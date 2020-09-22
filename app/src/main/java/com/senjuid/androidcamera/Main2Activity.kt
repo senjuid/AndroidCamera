@@ -21,8 +21,12 @@ class Main2Activity : AppCompatActivity() {
 
         cameraPlugin = CameraPlugin(this)
         cameraPlugin?.setCameraPluginListener(object : CameraPluginListener {
-            override fun onSuccess(photoPath: String) {
-                showImage(photoPath)
+            override fun onSuccess(photoPath: String, native: Boolean) {
+                if(native) {
+                    Toast.makeText(this@Main2Activity, "Canceled Native", Toast.LENGTH_LONG).show()
+                } else {
+                    showImage(photoPath)
+                }
             }
 
             override fun onCancel() {

@@ -21,23 +21,10 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
 
     fun setCameraPluginListener(listener: CameraPluginListener?) {
         this.listener = listener
-        println("Babay open 4 $activity")
-        println("Babay open 5 $imageFileManager")
-        println("Babay open 6 $nativeCameraHelper")
     }
 
     fun open(options: CameraPluginOptions) {
-
-        println("Babay open 1 $activity")
-        println("Babay open 2 $imageFileManager")
-        println("Babay open 3 $nativeCameraHelper")
-
         val intent = getIntent(options)
-        
-        println("Babay open 1 $activity")
-        println("Babay open 2 $imageFileManager")
-        println("Babay open 3 $nativeCameraHelper")
-
         if (activity is AppCompatActivity) {
             val startForResult =
                     activity.prepareCall(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
@@ -61,17 +48,16 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
     }
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        println("Babay lagi")
         if (requestCode == REQUEST) {
             if (resultCode == Activity.RESULT_OK) {
                 val performNativeCamera = data?.getBooleanExtra("native", false)
-                if (performNativeCamera!!) {
-                    openNativeCamera()
-                } else {
-                    listener?.let {
-                        val photoPath = data?.getStringExtra("photo")
+                listener?.let {
+                    val photoPath = data?.getStringExtra("photo")
+                    if(performNativeCamera!!) {
+                        it.onSuccess("", true)
+                    } else {
                         if (photoPath != null) {
-                            it.onSuccess(photoPath)
+                            it.onSuccess(photoPath, false)
                         } else {
                             it.onCancel()
                         }
@@ -95,6 +81,6 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
 }
 
 interface CameraPluginListener {
-    fun onSuccess(photoPath: String)
+    fun onSuccess(photoPath: String, native: Boolean)
     fun onCancel()
 }
