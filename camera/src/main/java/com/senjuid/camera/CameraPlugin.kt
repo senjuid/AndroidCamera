@@ -8,7 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleObserver
 
-class CameraPlugin(private val activity: Activity) : LifecycleObserver {
+class CameraPlugin(private val activity: Activity, private var cordova: CordovaInterface? = null) : LifecycleObserver {
 
     companion object {
         const val REQUEST = 1909
@@ -16,14 +16,22 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
 
     private var listener: CameraPluginListener? = null
     private val imageFileManager = ImageFileManager(activity)
-    private val nativeCameraHelper = NativeCameraHelper(imageFileManager)
+    private val nativeCameraHelper = NativeCameraHelper(imageFileManager, this.cordova)
 
 
     fun setCameraPluginListener(listener: CameraPluginListener?) {
         this.listener = listener
+        println("Babay open 4 $activity")
+        println("Babay open 5 $imageFileManager")
+        println("Babay open 6 $nativeCameraHelper")
     }
 
     fun open(options: CameraPluginOptions) {
+
+        println("Babay open 1 $activity")
+        println("Babay open 2 $imageFileManager")
+        println("Babay open 3 $nativeCameraHelper")
+
         val intent = getIntent(options)
 
         if (activity is AppCompatActivity) {
