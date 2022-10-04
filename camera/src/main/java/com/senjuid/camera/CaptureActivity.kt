@@ -125,6 +125,9 @@ class CaptureActivity : AppCompatActivity() {
         // set view mode
         viewMode(true)
 
+        // set camera facing
+        camera_view.facing = if (intent.getBooleanExtra("facing_back", false)) Facing.BACK else Facing.FRONT
+
         // check front disable front camera
         if (intent.getBooleanExtra("disable_back", false)) {
             btn_switch_camera.visibility = View.GONE

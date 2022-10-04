@@ -25,6 +25,7 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
 
     fun open(options: CameraPluginOptions) {
         val intent = getIntent(options)
+
         if (activity is AppCompatActivity) {
             val startForResult =
                     activity.prepareCall(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
@@ -39,6 +40,7 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
     fun getIntent(options: CameraPluginOptions): Intent {
         val intent = Intent(activity, CaptureActivity::class.java)
         intent.putExtra("name", options.name)
+        intent.putExtra("facing_back", options.isFacingBack)
         intent.putExtra("disable_back", options.disableFacingBack)
         intent.putExtra("disable_mirror", options.disableMirroring)
         intent.putExtra("max_size", options.maxSize)
@@ -51,13 +53,13 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
         if (requestCode == REQUEST) {
             if (resultCode == Activity.RESULT_OK) {
                 val performNativeCamera = data?.getBooleanExtra("native", false)
-                listener?.let {
-                    val photoPath = data?.getStringExtra("photo")
-                    if(performNativeCamera!!) {
-                        it.onSuccess("", true)
-                    } else {
+                if (performNativeCamera!!) {
+                    openNativeCamera()
+                } else {
+                    listener?.let {
+                        val photoPath = data?.getStringExtra("photo")
                         if (photoPath != null) {
-                            it.onSuccess(photoPath, false)
+                            it.onSuccess(photoPath)
                         } else {
                             it.onCancel()
                         }
@@ -81,6 +83,6 @@ class CameraPlugin(private val activity: Activity) : LifecycleObserver {
 }
 
 interface CameraPluginListener {
-    fun onSuccess(photoPath: String, native: Boolean)
+    fun onSuccess(photoPath: String)
     fun onCancel()
 }
